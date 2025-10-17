@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-
+import { apiFetch } from "@/lib/api";
 export default function LoginPage() {
   const [error, setError] = useState("");
   const router = useRouter();
@@ -30,7 +30,7 @@ export default function LoginPage() {
     setCookie("guestMode", false, { path: "/", maxAge: 60*60*24 });
 
     // 🚀 Register new user in DB if first time
-    await fetch("/api/register-user", {
+    await apiFetch("/api/register-user", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
