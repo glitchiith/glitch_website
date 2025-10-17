@@ -1,9 +1,9 @@
 package router
 
 import (
-    "github.com/Panshul-Jindal/glitch_website/backend/internal/controller"
-    "github.com/Panshul-Jindal/glitch_website/backend/internal/middlewares"
-    "github.com/gin-gonic/gin"
+	"github.com/Panshul-Jindal/glitch_website/backend/internal/controller"
+	"github.com/Panshul-Jindal/glitch_website/backend/internal/middlewares"
+	"github.com/gin-gonic/gin"
 )
 
 func SetupRoutes(r *gin.Engine) {

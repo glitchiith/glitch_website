@@ -13,6 +13,7 @@ import (
     "github.com/Panshul-Jindal/glitch_website/backend/internal/helpers"
     "github.com/Panshul-Jindal/glitch_website/backend/internal/schema"
     "github.com/gin-gonic/gin"
+	"os"
 )
 
 var GamesInverse = map[string]int{
@@ -89,7 +90,7 @@ func SubmitScore(c *gin.Context) {
     }
 
     // Decrypt data
-    privateKey := config.MustGetEnv("PRIVATE_KEY")
+    privateKey := os.Getenv("PRIVATE_KEY")
     decryptedStr, err := helpers.DecryptRSA(req.Data, privateKey)
     if err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to decrypt data"})
