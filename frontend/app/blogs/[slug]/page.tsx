@@ -1,16 +1,16 @@
-// // app/blog/[slug]/page.tsx
+// app/blog/[slug]/page.tsx
 
-// import React from "react";
-// import { getMarkdownContent } from "@/lib/markdown";
-// import Link from "next/link";
-// import ReviewSection from "@/components/Review-Section";
-// import PageHeader from "@/components/page-header";
+import React from "react";
+import { getMarkdownContent } from "@/lib/markdown";
+import Link from "next/link";
+import ReviewSection from "@/components/Review-Section";
+import PageHeader from "@/components/page-header";
 
 
 
-// // --- Main Blog Page ---
-// export default async function BlogPage({ params }: { params: { slug: string | Promise<string> } }) {
-//   // Next.js may provide params values as promises in some environments — await them before use
+// --- Main Blog Page ---
+export default async function BlogPage() {
+  // Next.js may provide params values as promises in some environments — await them before use
 //   const slug = await params.slug;
 //   const blog = await getMarkdownContent(slug);
 
@@ -79,4 +79,4 @@
 //     </div>
 //     </>
 //   );
-// }
+}
