@@ -1,0 +1,7 @@
+# Environment Variables
+.env
+.env.prod
+.env.*
+!.env.example
+
+tmp

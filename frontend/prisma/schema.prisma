@@ -1,0 +1,37 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+datasource db {
+  provider = "postgresql"  // can be "postgresql" if you move to Supabase
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+model Hostels {
+  id   Int    @id @default(autoincrement())
+  name String @unique @db.VarChar(255)
+}
+
+model User {
+  id         BigInt   @id @default(autoincrement())
+  uid        String   @unique @db.VarChar(128)
+  name       String?  @db.VarChar(255)
+  hostel_id  Int?     // foreign key scalar, no @relation
+
+  bestScore1 Int      @default(0)
+  bestScore2 Int      @default(0)
+  bestScore3 Int      @default(0)
+  bestScore4 Int      @default(0)
+  bestScore5 Int      @default(0)
+}
+
+model StudentHostels {
+  id        BigInt   @id @default(autoincrement())
+  email     String   @unique @db.VarChar(255)
+  hostel_id Int       // foreign key scalar, no @relation
+}
