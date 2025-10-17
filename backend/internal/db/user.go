@@ -1,22 +1,32 @@
 package db
 
 import (
-	"context"
-	"fmt"
-
-	"github.com/LambdaIITH/go-backend/config"
+    "github.com/Panshul-Jindal/glitch_website/backend/internal/schema"
+	    "github.com/Panshul-Jindal/glitch_website/backend/internal/config"
 )
 
-func GetUserId(context context.Context, email string) int {
-	query := `SELECT id from Users WHERE email = $1`
-	fmt.Println("EMAIL: ", email)
-	row := config.DB.QueryRow(context, query, email)
+func GetUserByUID(uid string) (*schema.User, error) {
+    var user schema.User
+    
+    err := config.DB.QueryRow(
+        `SELECT id, uid, name, hostel_id, "bestScore1", "bestScore2", "bestScore3", "bestScore4", "bestScore5"
+         FROM "User" WHERE uid = $1`,
+        uid,
+    ).Scan(
+        &user.ID,
+        &user.UID,
+        &user.Name,
+        &user.HostelID,
+        &user.BestScore1,
+        &user.BestScore2,
+        &user.BestScore3,
+        &user.BestScore4,
+        &user.BestScore5,
+    )
 
-	var id int
-	err := row.Scan(&id)
-	if err != nil {
-		fmt.Println(err)
-	}
+    if err != nil {
+        return nil, err
+    }
 
-	return id
+    return &user, nil
 }

@@ -1,34 +1,41 @@
 package middlewares
 
 import (
-	"fmt"
-	"net/http"
+    "context"
+    "net/http"
+    "strings"
 
-	"github.com/gin-gonic/gin"
-
-	"github.com/LambdaIITH/go-backend/internal/helpers"
+    "github.com/Panshul-Jindal/glitch_website/backend/internal/config"
+    "github.com/gin-gonic/gin"
 )
 
-func AuthMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		token, err := c.Cookie("auth")
+func FirebaseAuth() gin.HandlerFunc {
+    return func(c *gin.Context) {
+        authHeader := c.GetHeader("Authorization")
 
-		if err != nil || token == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or missing authentication token"})
-			c.Abort()
-			return
-		}
+        if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+            c.JSON(http.StatusUnauthorized, gin.H{"error": "Missing Firebase token"})
+            c.Abort()
+            return
+        }
 
-		claims, err := helpers.VerifyJWTToken(token)
-		if err != nil {
-			fmt.Println("Token verification failed:", err)
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
-			c.Abort()
-		} else {
-			// not suggested to store email in cookie
-			// here we retrieve email stored in cookie and pass it via context
-			c.Set("email", claims["email"])
-		}
-		c.Next()
-	}
+        idToken := strings.TrimPrefix(authHeader, "Bearer ")
+
+        client, err := config.FirebaseApp.Auth(context.Background())
+        if err != nil {
+            c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get auth client"})
+            c.Abort()
+            return
+        }
+
+        token, err := client.VerifyIDToken(context.Background(), idToken)
+        if err != nil {
+            c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+            c.Abort()
+            return
+        }
+
+        c.Set("uid", token.UID)
+        c.Next()
+    }
 }
