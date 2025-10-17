@@ -5,7 +5,7 @@ import (
     "net/http"
     "strings"
 
-    "github.com/Panshul-Jindal/glitch_website/backend/internal/config"
+    "github.com/Panshul-Jindal/glitch_website/backend/config"
     "github.com/gin-gonic/gin"
 )
 

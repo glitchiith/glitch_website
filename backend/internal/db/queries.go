@@ -3,7 +3,7 @@ package db
 import (
     "database/sql"
 
-    "github.com/Panshul-Jindal/glitch_website/backend/internal/config"
+    "github.com/Panshul-Jindal/glitch_website/backend/config"
     "github.com/Panshul-Jindal/glitch_website/backend/internal/schema"
 )
 

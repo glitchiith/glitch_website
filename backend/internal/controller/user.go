@@ -8,7 +8,7 @@ import (
     "strconv"
     "strings"
 
-    "github.com/Panshul-Jindal/glitch_website/backend/internal/config"
+    "github.com/Panshul-Jindal/glitch_website/backend/config"
     "github.com/Panshul-Jindal/glitch_website/backend/internal/db"
     "github.com/Panshul-Jindal/glitch_website/backend/internal/helpers"
     "github.com/Panshul-Jindal/glitch_website/backend/internal/schema"
