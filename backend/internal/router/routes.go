@@ -11,12 +11,13 @@ func SetupRoutes(r *gin.Engine) {
     {
         // Public routes
         api.GET("/get-scores", controller.GetScores)
-        
+        api.GET("/hello", controller.Greet)
         // Leaderboard routes
         leaderboard := api.Group("/leaderboard")
         {
             leaderboard.GET("/hostels", controller.GetHostelLeaderboard)
         }
+
 
         // Protected routes
         protected := api.Group("")
