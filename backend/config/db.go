@@ -4,14 +4,14 @@ import (
     "database/sql"
     "fmt"
     "log"
-
+"os"
     _ "github.com/lib/pq"
 )
 
 var DB *sql.DB
 
 func InitDB() error {
-    databaseURL := MustGetEnv("DATABASE_URL")
+    databaseURL := os.Getenv("DATABASE_URL")
 
     db, err := sql.Open("postgres", databaseURL)
     if err != nil {

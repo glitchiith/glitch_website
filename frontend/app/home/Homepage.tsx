@@ -1,10 +1,10 @@
-"use client";
+  "use client";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { FaPlay } from "react-icons/fa";
 import HomeLeaderboardSection from "@/components/HomeLeaderboardSection";
 import { getCookie } from "cookies-next";
-
+import { apiFetch } from "@/lib/api";
 export default function HomePage() {
   const [isMobile, setIsMobile] = useState(false);
   const [isGuest, setIsGuest] = useState(true);
@@ -49,7 +49,7 @@ export default function HomePage() {
         }
 
         try {
-          const res = await fetch("/api/get-uid", {
+          const res = await apiFetch("/api/get-uid", {
             method: "GET",
             headers: { Authorization: `Bearer ${token}` },
           });
@@ -86,7 +86,7 @@ export default function HomePage() {
       }
 
       const { gameName, score } = event.data;
-      fetch("/api/submit-score", {
+      apiFetch("/api/submit-score", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

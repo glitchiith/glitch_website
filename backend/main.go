@@ -1,34 +1,38 @@
 package main
 
 import (
-    "log"
+	"log"
+	"os"
 
-    "github.com/Panshul-Jindal/glitch_website/backend/config"
-    "github.com/Panshul-Jindal/glitch_website/backend/internal/router"
+	"github.com/Panshul-Jindal/glitch_website/backend/config"
+	"github.com/Panshul-Jindal/glitch_website/backend/internal/router"
 )
 
 func main() {
-    // Initialize configuration
-    config.Init()
+	// Initialize configuration
+	config.Init()
 
-    // Initialize database
-    if err := config.InitDB(); err != nil {
-        log.Fatalf("❌ Failed to connect to database: %v", err)
-    }
-    defer config.CloseDB()
 
-    // Initialize Firebase
-    if err := config.InitFirebase(); err != nil {
-        log.Fatalf("❌ Failed to initialize Firebase: %v", err)
-    }
 
-    // Setup and start router
-    r := router.SetupRouter()
+	
+	// Initialize database
+	if err := config.InitDB(); err != nil {
+		log.Fatalf("❌ Failed to connect to database: %v", err)
+	}
+	defer config.CloseDB()
 
-    port := config.GetEnv("PORT", "8080")
-    log.Printf("🚀 Server starting on port %s", port)
+	// Initialize Firebase
+	if err := config.InitFirebase(); err != nil {
+		log.Fatalf("❌ Failed to initialize Firebase: %v", err)
+	}
 
-    if err := r.Run(":" + port); err != nil {
-        log.Fatalf("❌ Failed to start server: %v", err)
-    }
+	// Setup and start router
+	r := router.SetupRouter()
+
+	port := os.Getenv("PORT")
+	log.Printf("🚀 Server starting on port %s", port)
+
+	if err := r.Run(":" + port); err != nil {
+		log.Fatalf("❌ Failed to start server: %v", err)
+	}
 }

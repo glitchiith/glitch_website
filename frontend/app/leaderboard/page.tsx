@@ -22,6 +22,13 @@ interface Player {
   score: number;
 }
 
+interface PlayerBackend {
+  uid: string;
+  name: string;
+  hostel_id?: number;
+  [key: string]: any;
+}
+
 interface UserGameStats {
   game_id: number;
   game_name: string;
@@ -40,7 +47,7 @@ interface UserStats {
 
 const LeaderboardPage = () => {
   const [activeTab, setActiveTab] = useState<"overall" | "games" | "players">("overall");
-  const [selectedGame, setSelectedGame] = useState(1);
+  const [selectedGame, setSelectedGame] = useState<number>(1);
   const [overallData, setOverallData] = useState<HostelScore[]>([]);
   const [gameData, setGameData] = useState<HostelScore[]>([]);
   const [playerData, setPlayerData] = useState<Player[]>([]);
@@ -56,67 +63,40 @@ const LeaderboardPage = () => {
     setIsAuthenticated(!!token && !!uid);
   }, []);
 
-  // Fetch user stats when authenticated
-  const fetchUserStats = async () => {
-    if (!isAuthenticated) return;
-    
-    try {
-      const res = await fetch("/api/user/stats"+`/${selectedGame}`);
-      if (res.ok) {
-        const data = await res.json();
-        setUserStats(data);
-      }
-    } catch (error) {
-      console.error("Error fetching user stats:", error);
-    }
-  };
-
-  const fetchOverallLeaderboard = async () => {
+  // Single fetch: get all user scores and leaderboard data
+  const fetchAllScores = async (gameId: number) => {
     setLoading(true);
     try {
-      const res = await fetch("/api/leaderboard/hostels");
-      const data = await res.json();
-      setOverallData(data.leaderboard || []);
-    } catch (error) {
-      console.error("Error fetching overall leaderboard:", error);
-    }
-    setLoading(false);
-  };
+      const res = await fetch(`/api/get-scores?gameId=${gameId}`);
+      const data: {
+        overall: HostelScore[];
+        gameHostels: HostelScore[];
+        topPlayers: PlayerBackend[];
+        user: UserStats | null;
+      } = await res.json();
 
-  const fetchGameLeaderboard = async (gameId: number) => {
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/leaderboard/hostels/${gameId}`);
-      const data = await res.json();
-      setGameData(data.leaderboard || []);
-    } catch (error) {
-      console.error("Error fetching game leaderboard:", error);
-    }
-    setLoading(false);
-  };
+      setOverallData(data.overall || []);
+      setGameData(data.gameHostels || []);
 
-  const fetchPlayerLeaderboard = async (gameId: number) => {
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/leaderboard/players/${gameId}`);
-      const data = await res.json();
-      setPlayerData(data.leaderboard || []);
-      
-      // Fetch user stats when players tab is active
-      if (isAuthenticated) {
-        await fetchUserStats();
-      }
+      const formattedPlayers: Player[] = (data.topPlayers || []).map((p, index) => ({
+        rank: index + 1,
+        uid: p.uid,
+        name: p.name,
+        hostel_name: p.hostel_id ? `Hostel ${p.hostel_id}` : "Unassigned",
+        score: p[`bestScore${gameId}`] || 0,
+      }));
+      setPlayerData(formattedPlayers);
+
+      if (data.user) setUserStats(data.user);
     } catch (error) {
-      console.error("Error fetching player leaderboard:", error);
+      console.error("Error fetching all scores:", error);
     }
     setLoading(false);
   };
 
   useEffect(() => {
-    if (activeTab === "overall") fetchOverallLeaderboard();
-    else if (activeTab === "games") fetchGameLeaderboard(selectedGame);
-    else if (activeTab === "players") fetchPlayerLeaderboard(selectedGame);
-  }, [activeTab, selectedGame]);
+    fetchAllScores(selectedGame);
+  }, [selectedGame]);
 
   useEffect(() => {
     if (barsRef.current && overallData.length > 0 && activeTab === "overall") {
@@ -144,14 +124,11 @@ const LeaderboardPage = () => {
     return <Trophy className="w-5 h-5 text-[var(--primary)]" />;
   };
 
-  // Check if current user is in top 20 for selected game
   const isUserInTop20 = () => {
-    if (!userStats || !isAuthenticated) return false;;
+    if (!userStats || !isAuthenticated) return false;
     return userStats.game?.in_top_20 || false;
   };
 
- 
-  // Render user stats card
   const renderUserStatsCard = (isInList: boolean = false) => {
     const gameStats = userStats?.game;
     if (!gameStats) return null;
@@ -162,10 +139,8 @@ const LeaderboardPage = () => {
           isInList ? 'border-yellow-500' : 'border-amber-500'
         } transition-all duration-300 hover:shadow-2xl hover:shadow-yellow-500/50 user-stats-card`}
       >
-        {/* Special glow effect */}
         <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/0 via-yellow-500/10 to-yellow-500/0 rounded-lg animate-pulse-slow"></div>
-        
-        {/* Your Position Badge */}
+
         <div className="absolute -top-3 -right-3 bg-gradient-to-r from-yellow-400 to-amber-500 text-black px-3 py-1 rounded-full font-bold text-xs flex items-center gap-1 shadow-lg animate-bounce-slow">
           <Star className="w-3 h-3 fill-current" />
           YOUR POSITION
@@ -218,21 +193,9 @@ const LeaderboardPage = () => {
         {/* Tabs */}
         <div className="flex flex-wrap justify-center gap-4 mb-8">
           {[
-            {
-              tab: "overall",
-              icon: <Users className="inline w-5 h-5 mr-2" />,
-              label: "Overall Hostels",
-            },
-            {
-              tab: "games",
-              icon: <Zap className="inline w-5 h-5 mr-2" />,
-              label: "Game Hostels",
-            },
-            {
-              tab: "players",
-              icon: <Trophy className="inline w-5 h-5 mr-2" />,
-              label: "Top Players",
-            },
+            { tab: "overall", icon: <Users className="inline w-5 h-5 mr-2" />, label: "Overall Hostels" },
+            { tab: "games", icon: <Zap className="inline w-5 h-5 mr-2" />, label: "Game Hostels" },
+            { tab: "players", icon: <Trophy className="inline w-5 h-5 mr-2" />, label: "Top Players" },
           ].map(({ tab, icon, label }) => (
             <button
               key={tab}
@@ -262,7 +225,7 @@ const LeaderboardPage = () => {
                     : "bg-gray-700 hover:bg-gray-600"
                 }`}
               >
-            {Games_Forward[gameNum as keyof typeof Games_Forward].game_name}
+                {Games_Forward[gameNum as keyof typeof Games_Forward].game_name}
               </button>
             ))}
           </div>
@@ -296,9 +259,7 @@ const LeaderboardPage = () => {
                           {getRankIcon(hostel.rank)}
                         </div>
                         <div>
-                          <h3 className="text-xl font-bold">
-                            {hostel.hostel_name}
-                          </h3>
+                          <h3 className="text-xl font-bold">{hostel.hostel_name}</h3>
                           <p className="text-sm text-gray-400">
                             {hostel.participant_count} participants
                           </p>
@@ -331,7 +292,7 @@ const LeaderboardPage = () => {
             {/* Game Hostels */}
             {activeTab === "games" && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 px-2 md:px-0 max-h-[600px] overflow-y-auto custom-scrollbar">
-                {gameData.map((item: any) => (
+                {gameData.map((item) => (
                   <div
                     key={item.hostel_id}
                     className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700 hover:border-[var(--primary)] transition-all duration-300 flex items-center justify-between"
@@ -357,17 +318,9 @@ const LeaderboardPage = () => {
             {/* Top Players */}
             {activeTab === "players" && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 px-2 md:px-0 max-h-[600px] overflow-y-auto custom-scrollbar">
-                {playerData.map((item: any) => {
-                  // Check if this is the current user
+                {playerData.map((item) => {
                   const isCurrentUser = isAuthenticated && userStats && item.uid === userStats.uid;
-                  
-                  if (isCurrentUser) {
-                    return (
-                      <div key={item.rank} className="sm:col-span-2">
-                        {renderUserStatsCard(true)}
-                      </div>
-                    );
-                  }
+                  if (isCurrentUser) return <div key={item.rank} className="sm:col-span-2">{renderUserStatsCard(true)}</div>;
 
                   return (
                     <div
@@ -394,7 +347,6 @@ const LeaderboardPage = () => {
                   );
                 })}
 
-                {/* Show user stats at bottom if not in top 20 */}
                 {isAuthenticated && userStats && !isUserInTop20() && (
                   <div className="sm:col-span-2 mt-4">
                     <div className="text-center mb-3">
@@ -413,76 +365,32 @@ const LeaderboardPage = () => {
         )}
       </div>
 
+      {/* Styles */}
       <style jsx>{`
-        :root {
-          --primary: oklch(0.85 0.35 135);
-        }
+        :root { --primary: oklch(0.85 0.35 135); }
 
         .neon-text {
-          text-shadow: 0 0 8px var(--primary), 0 0 16px var(--primary),
-            0 0 30px var(--primary), 0 0 45px var(--primary);
+          text-shadow: 0 0 8px var(--primary), 0 0 16px var(--primary), 0 0 30px var(--primary), 0 0 45px var(--primary);
           animation: pulse 2s ease-in-out infinite;
         }
-
         .glow-text {
           text-shadow: 0 0 10px rgba(250, 204, 21, 0.8),
                        0 0 20px rgba(250, 204, 21, 0.5),
                        0 0 30px rgba(250, 204, 21, 0.3);
         }
-
         @keyframes pulse {
-          0%, 100% {
-            opacity: 1;
-            text-shadow: 0 0 8px var(--primary), 0 0 16px var(--primary),
-              0 0 30px var(--primary);
-          }
-          50% {
-            opacity: 0.9;
-            text-shadow: 0 0 12px var(--primary), 0 0 24px var(--primary),
-              0 0 36px var(--primary);
-          }
+          0%, 100% { opacity: 1; text-shadow: 0 0 8px var(--primary), 0 0 16px var(--primary), 0 0 30px var(--primary); }
+          50% { opacity: 0.9; text-shadow: 0 0 12px var(--primary), 0 0 24px var(--primary), 0 0 36px var(--primary); }
         }
+        @keyframes pulse-slow { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.5; } }
+        @keyframes bounce-slow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        .animate-pulse-slow { animation: pulse-slow 3s ease-in-out infinite; }
+        .animate-bounce-slow { animation: bounce-slow 2s ease-in-out infinite; }
+        .user-stats-card { animation: slide-up 0.5s ease-out; }
+        @keyframes slide-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        @keyframes pulse-slow {
-          0%, 100% { opacity: 0.3; }
-          50% { opacity: 0.5; }
-        }
-
-        @keyframes bounce-slow {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-5px); }
-        }
-
-        .animate-pulse-slow {
-          animation: pulse-slow 3s ease-in-out infinite;
-        }
-
-        .animate-bounce-slow {
-          animation: bounce-slow 2s ease-in-out infinite;
-        }
-
-        .user-stats-card {
-          animation: slide-up 0.5s ease-out;
-        }
-
-        @keyframes slide-up {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: var(--primary);
-          border-radius: 10px;
-        }
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
       `}</style>
     </div>
   );
