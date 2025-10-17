@@ -6,7 +6,7 @@ import { toast, Toaster } from "sonner";
 import { Trophy, Crown, Medal, ArrowRight, Gamepad2 } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-
+import { apiFetch } from "@/lib/api";
 // Register GSAP plugin
 if (typeof window !== "undefined") {
     gsap.registerPlugin(ScrollTrigger);
@@ -49,7 +49,7 @@ const HomeLeaderboardSection = () => {
         if (typeof window === "undefined") return;
         const fetchLeaderboard = async () => {
             try {
-                const response = await fetch("/api/leaderboard/hostels");
+                const response = await apiFetch("/api/leaderboard/hostels");
                 const data = await response.json();
                 console.log("Leaderboard data:", data.leaderboard);
                 if (data.leaderboard) {
