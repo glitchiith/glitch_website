@@ -2,7 +2,7 @@ package db
 
 import (
     "github.com/Panshul-Jindal/glitch_website/backend/internal/schema"
-	    "github.com/Panshul-Jindal/glitch_website/backend/internal/config"
+	    "github.com/Panshul-Jindal/glitch_website/backend/config"
 )
 
 func GetUserByUID(uid string) (*schema.User, error) {
