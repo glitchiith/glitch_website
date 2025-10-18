@@ -4,23 +4,13 @@ import { Menu } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { getCookie, deleteCookie } from "cookies-next";
+import { getCookie } from "cookies-next";
 import Image from "next/image";
-import { auth } from "@/lib/firebase";
-import { signOut } from "firebase/auth";
 import { handleLogout } from '@/lib/auth';
 
-const leftLinks = [
+const navLinks = [
   { name: "Home", href: "/" },
-  { name: "About Us", href: "/about" },
-  { name: "Team", href: "/team" },
-  { name: "Insights", href: "/blogs" },
-];
-
-const rightLinks = [
-  { name: "Projects", href: "/projects" },
   { name: "Leaderboard", href: "/leaderboard" },
-  { name: "Contact Us", href: "/contact" },
 ];
 
 export default function Header() {
@@ -42,117 +32,119 @@ export default function Header() {
 
   const handleLogin = () => router.push("/login");
 
-
   return (
-    <header
-      className="w-full flex items-center justify-between px-8 py-12 relative z-50"
-      style={{ background: "var(--header-bg)" }}
-    >
-      {/* LEFT NAV */}
-      <nav className="hidden md:flex space-x-6">
-        {leftLinks.map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            onClick={() => setActiveLink(link.href)}
-            className={cn(
-              "text-foreground text-sm sm:text-base transition-colors flex items-center py-1",
-              activeLink === link.href
-                ? "bg-primary text-primary-foreground px-2 rounded-full"
-                : "hover:bg-transparent"
-            )}
+    <header className="w-full flex items-center justify-between px-8 py-6 relative z-50 bg-[#0A0D10] border-b border-zinc-800/40 backdrop-blur-sm">
+      {/* LOGO + NAV LINKS */}
+      <div className="flex items-center space-x-12">
+        <Link href="/" className="flex items-center space-x-2 group">
+          <Image
+            src="/logo-nobg.png"
+            alt="Glitch Logo"
+            width={40}
+            height={40}
+            priority
+            className="transition-transform group-hover:scale-110"
+          />
+          <span
+            className="text-3xl font-bold text-green-400"
+            style={{ 
+              textShadow: "0 0 20px rgba(0, 255, 0, 0.5)",
+              letterSpacing: "-0.02em"
+            }}
           >
-            {link.name}
-          </Link>
-        ))}
-      </nav>
+            GLITCH
+          </span>
+        </Link>
 
-      {/* LOGO CENTER */}
-      <div className="flex items-center justify-center space-x-2 md:absolute md:left-1/2 md:transform md:-translate-x-1/2">
-        <Image
-          src="/logo-nobg.png"
-          alt="Glitch Logo"
-          width={48}
-          height={48}
-          priority
-        />
-        <span
-          className="text-4xl font-bold text-primary"
-          style={{ textShadow: "0 0 30px #00ff00" }}
-        >
-          GLITCH
-        </span>
-      </div>
-
-      {/* RIGHT NAV + LOGIN */}
-      <div className="hidden md:flex items-center space-x-6">
-        {rightLinks.map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            onClick={() => setActiveLink(link.href)}
-            className={cn(
-              "text-foreground text-sm sm:text-base transition-colors flex items-center py-1",
-              activeLink === link.href
-                ? "bg-primary text-primary-foreground px-2 rounded-full"
-                : "hover:bg-transparent"
-            )}
-          >
-            {link.name}
-          </Link>
-        ))}
-
-        <div className="ml-4">
-          {isLoggedIn ? (
-            <button
-              className="bg-primary text-white text-base font-semibold px-6 py-3 rounded-xl shadow-lg transition-all duration-200 hover:bg-red-500 hover:scale-105"
-              style={{ boxShadow: "0 2px 16px 0 #00ff00" }}
-              onClick={handleLogout}
-            >
-              Logout
-            </button>
-          ) : (
-            <button
-              className="bg-primary text-white text-base font-semibold px-6 py-3 rounded-xl shadow-lg transition-all duration-200 hover:bg-green-600 hover:scale-105"
-              style={{ boxShadow: "0 2px 16px 0 #00ff00" }}
-              onClick={handleLogin}
-            >
-              Login
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* MOBILE MENU */}
-      <div className="md:hidden">
-        <button
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="text-primary hover:text-foreground"
-        >
-          <Menu className="h-6 w-6" />
-        </button>
-      </div>
-
-      {isMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full bg-background p-4 shadow-lg z-50">
-          {[...leftLinks, ...rightLinks].map((link) => (
+        <nav className="hidden md:flex space-x-8">
+          {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              onClick={() => {
-                setActiveLink(link.href);
-                setIsMenuOpen(false);
-              }}
+              onClick={() => setActiveLink(link.href)}
               className={cn(
-                "block text-foreground text-sm py-2 transition-colors",
+                "text-base font-medium transition-all duration-200 px-4 py-2 rounded-lg",
                 activeLink === link.href
-                  ? "bg-primary text-primary-foreground px-2 rounded-full"
-                  : "hover:bg-transparent"
+                  ? "bg-green-500/10 text-green-400 shadow-[0_0_15px_rgba(0,255,0,0.1)]"
+                  : "text-zinc-400 hover:text-green-400 hover:bg-green-500/5"
               )}
             >
               {link.name}
             </Link>
           ))}
+        </nav>
+      </div>
+
+      {/* LOGIN/LOGOUT BUTTON */}
+      <div className="hidden md:block">
+        {isLoggedIn ? (
+          <button
+            className="bg-red-500/10 text-red-400 text-sm font-semibold px-6 py-2.5 rounded-lg 
+                     transition-all duration-200 hover:bg-red-500/20 hover:shadow-[0_0_20px_rgba(255,0,0,0.15)]"
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
+        ) : (
+          <button
+            className="bg-green-500/10 text-green-400 text-sm font-semibold px-6 py-2.5 rounded-lg 
+                     transition-all duration-200 hover:bg-green-500/20 hover:shadow-[0_0_20px_rgba(0,255,0,0.15)]"
+            onClick={handleLogin}
+          >
+            Login
+          </button>
+        )}
+      </div>
+
+      {/* MOBILE MENU BUTTON */}
+      <button
+        onClick={() => setIsMenuOpen(!isMenuOpen)}
+        className="md:hidden text-zinc-400 hover:text-green-400 transition-colors"
+      >
+        <Menu className="h-6 w-6" />
+      </button>
+
+      {/* MOBILE MENU DROPDOWN */}
+      {isMenuOpen && (
+        <div className="md:hidden absolute top-full left-0 w-full bg-[#0A0D10] border-b border-zinc-800/40 p-4">
+          <nav className="flex flex-col space-y-3">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => {
+                  setActiveLink(link.href);
+                  setIsMenuOpen(false);
+                }}
+                className={cn(
+                  "text-base font-medium transition-all duration-200 px-4 py-2 rounded-lg",
+                  activeLink === link.href
+                    ? "bg-green-500/10 text-green-400"
+                    : "text-zinc-400 hover:text-green-400 hover:bg-green-500/5"
+                )}
+              >
+                {link.name}
+              </Link>
+            ))}
+            {/* Mobile Login/Logout Button */}
+            {isLoggedIn ? (
+              <button
+                className="text-left text-red-400 text-base font-medium px-4 py-2 rounded-lg 
+                         hover:bg-red-500/10 transition-all duration-200"
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
+            ) : (
+              <button
+                className="text-left text-green-400 text-base font-medium px-4 py-2 rounded-lg 
+                         hover:bg-green-500/10 transition-all duration-200"
+                onClick={handleLogin}
+              >
+                Login
+              </button>
+            )}
+          </nav>
         </div>
       )}
     </header>

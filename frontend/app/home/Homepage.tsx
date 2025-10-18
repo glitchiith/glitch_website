@@ -153,15 +153,16 @@ export default function HomePage() {
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 lg:mb-12">
             ABOUT US
           </h1>
+          <br/>
           <p className="text-white text-base md:text-lg leading-relaxed">
-            Glitch, the epicenter of gaming and game development at IIT. Join
+            Glitch, the epicenter of gaming and game development at IIT H. Join
             thrilling tournaments, workshops, and coding sessions.
           </p>
-          <Link href="/about">
+          {/* <Link href="/about">
             <button className="mt-8 bg-green-500 text-black px-5 md:px-6 py-3 rounded-lg text-base md:text-lg hover:bg-white transition">
               NEXT CAN BE YOU →
             </button>
-          </Link>
+          </Link> */}
         </div>
 
         <div className="relative w-full lg:w-1/2 flex justify-center lg:justify-end p-6 lg:p-12 mt-10 lg:mt-0">
