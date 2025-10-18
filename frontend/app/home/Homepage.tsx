@@ -57,11 +57,24 @@ export default function HomePage() {
           if (!res.ok) return null;
 
           const data = await res.json();
+
+          // Suppose you already have `uid` from your existing function
+          const iframe = document.getElementById("unityIframe") as HTMLIFrameElement | null;
+          const uid = await (window as any).getUID();
+          if (uid && iframe && iframe.contentWindow) {
+            const iframeOrigin = new URL(iframe.src).origin;
+            iframe.contentWindow.postMessage(
+              { type: "user-uid", uid },
+              iframeOrigin // replace "*" with iframe origin in production
+            );
+          }
+
           return data.uid;
         } catch (err) {
           console.error("Error fetching UID:", err);
           return null;
         }
+
       };
     } else {
       (window as any).getUID = undefined;
@@ -123,6 +136,7 @@ export default function HomePage() {
             src="/gameglitch/Final/index.html"
             className="w-full h-full border-none"
             title="Topdown Game"
+            id="unityIframe"
             allowFullScreen
           />
         </div>
