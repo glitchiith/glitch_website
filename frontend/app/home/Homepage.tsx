@@ -58,10 +58,11 @@ export default function HomePage() {
 
           const data = await res.json();
           const uid = data.uid;
-
+          console.log("UID GOT");
           // Suppose you already have `uid` from your existing function
           const iframe = document.getElementById("unityIframe") as HTMLIFrameElement | null;
           if (uid && iframe && iframe.contentWindow) {
+            console.log("UID SEND TO IFRAME");
             const iframeOrigin = new URL(iframe.src).origin;
             iframe.contentWindow.postMessage(
               { type: "user-uid", uid },
