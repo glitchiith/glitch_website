@@ -36,57 +36,61 @@ export default function HomePage() {
   const shouldShowVideo = isMobile || isGuest;
   const shouldShowGame = !isMobile && !isGuest;
 
-  // Define getUID for desktop logged-in
-  useEffect(() => {
-    if (shouldShowGame && isLoggedIn) {
-      console.log("HEHEHHE SETTING GETUID");
-      (window as any).getUID = async () => {
-        let token;
-        console.log("GETUID CALLED");
-        try {
-          token = getCookie("authToken");
-          if (!token) return null;
-        } catch {
-          return null;
-        }
-        try {
-          const res = await apiFetch("/api/get-uid", {
-            method: "GET",
-            headers: { Authorization: `Bearer ${token}` },
-            credentials: "include",
-          });
-          console.log("GET WORKING HEHE");
-          if (!res.ok) return null;
+  // // Define getUID for desktop logged-in
+  // useEffect(() => {
+  //   if (shouldShowGame && isLoggedIn) {
+  //     console.log("HEHEHHE SETTING GETUID");
+  //     (window as any).getUID = async () => {
+  //       let token;
+  //       console.log("GETUID CALLED");
+  //       try {
+  //         token = getCookie("authToken");
+  //         if (!token) return null;
+  //       } catch {
+  //         return null;
+  //       }
+  //       try {
+  //         const res = await apiFetch("/api/get-uid", {
+  //           method: "GET",
+  //           headers: { Authorization: `Bearer ${token}` },
+  //           credentials: "include",
+  //         });
+  //         console.log("GET WORKING HEHE");
+  //         if (!res.ok) return null;
 
-          const data = await res.json();
-          const uid = data.uid;
-          // Suppose you already have `uid` from your existing function
-          const iframe = document.getElementById("unityIframe") as HTMLIFrameElement | null;
-          if (uid && iframe && iframe.contentWindow) {
-            const iframeOrigin = new URL(iframe.src).origin;
-            iframe.contentWindow.postMessage(
-              { type: "user-uid", uid },
-              iframeOrigin 
-            );
-          }
+  //         const data = await res.json();
+  //         const uid = data.uid;
+  //         // Suppose you already have `uid` from your existing function
+  //         const iframe = document.getElementById("unityIframe") as HTMLIFrameElement | null;
+  //         if (uid && iframe && iframe.contentWindow) {
+  //           const iframeOrigin = new URL(iframe.src).origin;
+  //           iframe.contentWindow.postMessage(
+  //             { type: "user-uid", uid },
+  //             iframeOrigin 
+  //           );
+  //         }
 
-          return data.uid;
-        } catch (err) {
-          console.error("Error fetching UID:", err);
-          return null;
-        }
+  //         return data.uid;
+  //       } catch (err) {
+  //         console.error("Error fetching UID:", err);
+  //         return null;
+  //       }
 
-      };
-    } else {
-      (window as any).getUID = undefined;
-    }
+  //     };
+  //   } else {
+  //     (window as any).getUID = undefined;
+  //   }
 
-    return () => {
-      (window as any).getUID = undefined;
-    };
-  }, [shouldShowGame, isLoggedIn]);
+  //   return () => {
+  //     (window as any).getUID = undefined;
+  //   };
+  // }, [shouldShowGame, isLoggedIn]);
 
   // Listen for scores from iframe
+  
+  
+  
+  
   useEffect(() => {
     const listener = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return;
