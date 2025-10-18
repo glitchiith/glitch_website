@@ -60,6 +60,13 @@ setCookie("guestMode", false, {
   sameSite: "none",
   httpOnly: false,
 });
+
+// After getting uid and token
+localStorage.setItem("uid", uid);
+localStorage.setItem("authToken", token);
+localStorage.setItem("guestMode", "false");
+
+
     // 🚀 Register new user in DB if first time
     await apiFetch("/api/register-user", {
       method: "POST",
@@ -83,6 +90,7 @@ setCookie("guestMode", false, {
 
   const handleGuestMode = () => {
     setCookie("guestMode", "true", { path: "/", maxAge: 60 * 60 * 24 });
+    localStorage.setItem("guestMode", "true");
     router.push("/");
   };
 

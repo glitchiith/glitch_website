@@ -18,6 +18,24 @@
     );
   }
 </script>
+
+
+<script>
+function getPlayerNameFromJS() {
+  // read UID from localStorage
+  const uid = localStorage.getItem("uid");
+
+  if (uid) {
+    // call back into Unity C# method
+    console.log(uid);
+    // SendMessage('FrontendCaller', 'GetUserID', uid);
+  } else {
+    console.warn("UID not found in localStorage");
+  }
+}
+</script>
+
+
   <body>
     <div id="unity-container" class="unity-desktop">
       <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
