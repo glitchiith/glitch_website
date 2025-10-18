@@ -69,7 +69,7 @@
 
   // Forward to parent
     window.parent.postMessage(
-      { type: "score", gameName, score: encryptedScore },
+      { type: "score", name, score: encryptedScore },
       window.location.origin
     );
         console.log(`${name}\n${score}`);
