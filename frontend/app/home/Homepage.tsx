@@ -52,6 +52,7 @@ export default function HomePage() {
           const res = await apiFetch("/api/get-uid", {
             method: "GET",
             headers: { Authorization: `Bearer ${token}` },
+            credentials: "include",
           });
           if (!res.ok) return null;
 
@@ -93,6 +94,7 @@ export default function HomePage() {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ gameName, data: score }),
+         credentials: "include",
       });
     };
 
@@ -116,7 +118,7 @@ export default function HomePage() {
       )}
 
       {shouldShowGame && (
-        <div className="w-360 h-200 gi py-0">
+        <div className="w-360 h-200 gi py-0   ">
           <iframe
             src="/gameglitch/Final/index.html"
             className="w-full h-full border-none"
