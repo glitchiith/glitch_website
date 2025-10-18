@@ -366,7 +366,7 @@ const LeaderboardPage = () => {
 
             {/* Players - Game-specific player scores */}
             {activeTab === "players" && (
-              <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[600px] overflow-y-auto custom-scrollbar box-border overflow-x-hidden">
+              <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[700px] overflow-y-auto custom-scrollbar box-border overflow-x-hidden py-4 px-3">
                 {topPlayers.map((item) => {
                   const isCurrentUser = isAuthenticated && currentUser && item.uid === currentUser.uid;
                   if (isCurrentUser) {
