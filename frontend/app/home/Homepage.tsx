@@ -49,7 +49,11 @@ export default function HomePage() {
         } catch {
           return null;
         }
+<<<<<<< HEAD
         console.log("FIRST TRY BLOCK");
+=======
+	console.log("HERE IT IS:");
+>>>>>>> 589210b03743cdd9ad5c35983ffb57ebc9f5ed17
         try {
           const res = await apiFetch("/api/get-uid", {
             method: "GET",
