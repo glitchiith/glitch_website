@@ -41,13 +41,14 @@ export default function HomePage() {
     if (shouldShowGame && isLoggedIn) {
       (window as any).getUID = async () => {
         let token;
+        console.log("GETUID CALLED");
         try {
           token = getCookie("authToken");
           if (!token) return null;
         } catch {
           return null;
         }
-        
+        console.log("FIRST TRY BLOCK");
         try {
           const res = await apiFetch("/api/get-uid", {
             method: "GET",
