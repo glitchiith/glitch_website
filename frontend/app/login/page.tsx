@@ -40,7 +40,7 @@ setCookie("authToken", token, {
   domain: ".glitchiith.co.in", // allow subdomains like backend.glitchiith.co.in
   secure: true,                 // must be HTTPS if SameSite=None
   sameSite: "none",             // required for cross-site cookies
-  httpOnly: true,               // optional, prevents JS access
+  httpOnly: false,               // optional, prevents JS access
 });
 
 setCookie("uid", uid, {
@@ -49,7 +49,7 @@ setCookie("uid", uid, {
   domain: ".glitchiith.co.in",
   secure: true,
   sameSite: "none",
-  httpOnly: true,
+  httpOnly: false,
 });
 
 setCookie("guestMode", false, {
@@ -58,7 +58,7 @@ setCookie("guestMode", false, {
   domain: ".glitchiith.co.in",
   secure: true,
   sameSite: "none",
-  httpOnly: true,
+  httpOnly: false,
 });
     // 🚀 Register new user in DB if first time
     await apiFetch("/api/register-user", {
