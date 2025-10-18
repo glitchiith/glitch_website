@@ -129,7 +129,7 @@
                     if (!event.data || event.data.type !== "user-uid") return;
 
                     const uid = event.data.uid;
-
+                    console.log("Received UID from parent:", uid);
                     // Send UID to Unity
                     unityInstance.SendMessage("FrontendCaller", "GetUserID", uid);
                 });
