@@ -26,6 +26,7 @@ var GamesInverse = map[string]int{
 
 func GetUID(c *gin.Context) {
     uid, exists := c.Get("uid")
+    
     if !exists {
         c.JSON(http.StatusUnauthorized, gin.H{"error": "UID not found"})
         return

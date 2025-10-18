@@ -9,7 +9,7 @@ func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
 	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"*"}
+	config.AllowOrigins = []string{"https://www.glitchiith.co.in", "https://glitchiith.co.in", "http://localhost", "http://127.0.0.1"}
 	config.AllowMethods = []string{"OPTIONS", "GET", "POST", "PUT", "DELETE"}
 	config.AllowHeaders = []string{"*"}
 	config.AllowCredentials = false
