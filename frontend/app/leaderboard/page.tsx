@@ -246,7 +246,7 @@ const LeaderboardPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0D10] text-white p-4 md:p-8 backdrop-blur-sm">
+    <div className="min-h-screen bg-site text-white p-4 md:p-8 backdrop-blur-sm">
       <div className="max-w-7xl mx-auto mb-8">
         <div className="text-center mb-8">
           <h1 className="text-5xl md:text-7xl font-bold mb-4 neon-text">
