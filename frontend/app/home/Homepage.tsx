@@ -39,8 +39,10 @@ export default function HomePage() {
   // Define getUID for desktop logged-in
   useEffect(() => {
     if (shouldShowGame && isLoggedIn) {
+      console.log("HEHEHHE SETTING GETUID");
       (window as any).getUID = async () => {
         let token;
+        console.log("GETUID CALLED");
         try {
           token = getCookie("authToken");
           if (!token) return null;
@@ -54,14 +56,27 @@ export default function HomePage() {
             headers: { Authorization: `Bearer ${token}` },
             credentials: "include",
           });
+          console.log("GET WORKING HEHE");
           if (!res.ok) return null;
 
           const data = await res.json();
+          const uid = data.uid;
+          // Suppose you already have `uid` from your existing function
+          const iframe = document.getElementById("unityIframe") as HTMLIFrameElement | null;
+          if (uid && iframe && iframe.contentWindow) {
+            const iframeOrigin = new URL(iframe.src).origin;
+            iframe.contentWindow.postMessage(
+              { type: "user-uid", uid },
+              iframeOrigin 
+            );
+          }
+
           return data.uid;
         } catch (err) {
           console.error("Error fetching UID:", err);
           return null;
         }
+
       };
     } else {
       (window as any).getUID = undefined;
@@ -123,6 +138,7 @@ export default function HomePage() {
             src="/gameglitch/Final/index.html"
             className="w-full h-full border-none"
             title="Topdown Game"
+            id="unityIframe"
             allowFullScreen
           />
         </div>

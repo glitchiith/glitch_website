@@ -7,7 +7,6 @@
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
   </head>
-
   <script>
   function GetScoreFromUnity(gameName, encryptedScore) {
     console.log("Score received:", encryptedScore, "for game:", gameName);
@@ -19,8 +18,6 @@
     );
   }
 </script>
-
-
   <body>
     <div id="unity-container" class="unity-desktop">
       <canvas id="unity-canvas" width=800 height=600 tabindex="-1"></canvas>
@@ -128,6 +125,14 @@
                 document.querySelector("#unity-fullscreen-button").onclick = () => {
                   unityInstance.SetFullscreen(1);
                 };
+                window.addEventListener("message", (event) => {
+                    if (!event.data || event.data.type !== "user-uid") return;
+
+                    const uid = event.data.uid;
+                    console.log("Received UID from parent:", uid);
+                    // Send UID to Unity
+                    unityInstance.SendMessage("FrontendCaller", "GetUserID", uid);
+                });
 
               }).catch((message) => {
                 alert(message);
