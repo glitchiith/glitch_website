@@ -47,7 +47,6 @@ export default function HomePage() {
         } catch {
           return null;
         }
-        console.log("HERERERERERERERERRE");
         
         try {
           const res = await apiFetch("/api/get-uid", {
@@ -55,6 +54,7 @@ export default function HomePage() {
             headers: { Authorization: `Bearer ${token}` },
             credentials: "include",
           });
+          console.log("GET WORKING HEHE");
           if (!res.ok) return null;
 
           const data = await res.json();
