@@ -36,58 +36,6 @@ export default function HomePage() {
   const shouldShowVideo = isMobile || isGuest;
   const shouldShowGame = !isMobile && !isGuest;
 
-  // // Define getUID for desktop logged-in
-  // useEffect(() => {
-  //   if (shouldShowGame && isLoggedIn) {
-  //     console.log("HEHEHHE SETTING GETUID");
-  //     (window as any).getUID = async () => {
-  //       let token;
-  //       console.log("GETUID CALLED");
-  //       try {
-  //         token = getCookie("authToken");
-  //         if (!token) return null;
-  //       } catch {
-  //         return null;
-  //       }
-  //       try {
-  //         const res = await apiFetch("/api/get-uid", {
-  //           method: "GET",
-  //           headers: { Authorization: `Bearer ${token}` },
-  //           credentials: "include",
-  //         });
-  //         console.log("GET WORKING HEHE");
-  //         if (!res.ok) return null;
-
-  //         const data = await res.json();
-  //         const uid = data.uid;
-  //         // Suppose you already have `uid` from your existing function
-  //         const iframe = document.getElementById("unityIframe") as HTMLIFrameElement | null;
-  //         if (uid && iframe && iframe.contentWindow) {
-  //           const iframeOrigin = new URL(iframe.src).origin;
-  //           iframe.contentWindow.postMessage(
-  //             { type: "user-uid", uid },
-  //             iframeOrigin 
-  //           );
-  //         }
-
-  //         return data.uid;
-  //       } catch (err) {
-  //         console.error("Error fetching UID:", err);
-  //         return null;
-  //       }
-
-  //     };
-  //   } else {
-  //     (window as any).getUID = undefined;
-  //   }
-
-  //   return () => {
-  //     (window as any).getUID = undefined;
-  //   };
-  // }, [shouldShowGame, isLoggedIn]);
-
-  // Listen for scores from iframe
-  
   
   
   
@@ -148,7 +96,7 @@ export default function HomePage() {
       )}
 
       {/* About Section */}
-      <div className="w-full min-h-[90vh] bg-[#0B0F13] flex flex-col lg:flex-row items-center justify-center px-6 lg:px-12">
+      <div className="w-full min-h-[90vh] bg-site flex flex-col lg:flex-row items-center justify-center px-6 lg:px-12">
         <div className="w-full lg:w-1/2 p-6 lg:p-12 text-center lg:text-left">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 lg:mb-12">
             ABOUT US
@@ -179,6 +127,8 @@ export default function HomePage() {
 
       {/* Leaderboard */}
       <HomeLeaderboardSection />
+    <div className="w-full h-24 bg-site" />
+
     </>
   );
 }
