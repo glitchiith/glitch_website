@@ -7,6 +7,20 @@
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
   </head>
+
+  <script>
+  function GetScoreFromUnity(gameName, encryptedScore) {
+    console.log("Score received:", encryptedScore, "for game:", gameName);
+
+    // Forward to parent
+    window.parent.postMessage(
+      { type: "score", gameName, score: encryptedScore },
+      window.location.origin
+    );
+  }
+</script>
+
+
   <body>
     <div id="unity-container" class="unity-desktop">
       <canvas id="unity-canvas" width=800 height=600 tabindex="-1"></canvas>
