@@ -20,7 +20,7 @@
 </script>
   <body>
     <div id="unity-container" class="unity-desktop">
-      <canvas id="unity-canvas" width=800 height=600 tabindex="-1"></canvas>
+      <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
       <div id="unity-loading-bar">
         <div id="unity-logo"></div>
         <div id="unity-progress-bar-empty">
@@ -109,7 +109,7 @@
 
       } else {
         // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
-        canvas.style.width = "800px";
+        canvas.style.width = "960px";
         canvas.style.height = "600px";
       }
 
@@ -125,14 +125,6 @@
                 document.querySelector("#unity-fullscreen-button").onclick = () => {
                   unityInstance.SetFullscreen(1);
                 };
-                window.addEventListener("message", (event) => {
-                    if (!event.data || event.data.type !== "user-uid") return;
-
-                    const uid = event.data.uid;
-                    console.log("Received UID from parent:", uid);
-                    // Send UID to Unity
-                    unityInstance.SendMessage("FrontendCaller", "GetUserID", uid);
-                });
 
               }).catch((message) => {
                 alert(message);
