@@ -187,9 +187,7 @@ const HomeLeaderboardSection = () => {
                         🏆 HOSTEL LEADERBOARD 🏆
                     </h2>
                     <br />
-                    <p className="text-center text-white text-lg mb-8">
-                        Inter-Hostel Gaming Championship Standings
-                    </p>
+         
                     <br />
                     {/* Leaderboard entries */}
                     <div ref={barsRef} className="space-y-3 mb-4">
