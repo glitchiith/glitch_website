@@ -73,9 +73,6 @@ export default function Footer() {
               </span>
             </Link>
           </div>
-          <p className="mt-3 text-xs text-zinc-500 text-center">
-            © {currentYear} Glitch Club — All rights reserved
-          </p>
         </div>
 
         {/* Navigation Links */}
@@ -161,16 +158,16 @@ export default function Footer() {
             Leaderboard
           </Link>
         </nav>
+      </div>
 
-        {/* Made with Love */}
-        <div className="flex flex-col items-center">
-          <p className="font-bold text-green-400 text-sm text-center">
-            Made with ❤️ by Lambda
-          </p>
-          <p className="text-xs text-zinc-500 mt-2 text-center">
-            © {currentYear} Glitch Club — All rights reserved
-          </p>
-        </div>
+      {/* --- Made with Love (Visible on all screens) --- */}
+      <div className="flex flex-col items-center mt-8 text-center">
+        <p className="font-bold text-green-400 text-sm">
+          Made with ❤️ by Lambda
+        </p>
+        <p className="text-xs text-zinc-500 mt-2">
+          © {currentYear} Glitch Club — All rights reserved
+        </p>
       </div>
 
       {/* --- Optional Animated Banner --- */}
@@ -188,7 +185,7 @@ export default function Footer() {
         `}</style>
         {/* Uncomment if you want the banner */}
         {/* <div className="marquee-content">
-          {Array(20).fill(`© ${currentYear} GLITCH CLUB IITH • `).join(' ')}
+          {Array(20).fill(\`© ${currentYear} GLITCH CLUB IITH • \`).join(' ')}
         </div> */}
       </div>
     </footer>

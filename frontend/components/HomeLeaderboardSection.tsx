@@ -171,11 +171,12 @@ const HomeLeaderboardSection = () => {
 
             <div
                 ref={sectionRef}
-                className="w-full min-h-[50vh] bg-site relative overflow-hidden py-8 px-6 lg:px-8"
+                className="w-full min-h-[50vh] bg-site relative overflow-hidden py-12 px-6 lg:px-8"
             >
                 {/* Background glows */}
-                <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl"></div>
-                <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
+                <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
+                <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
+
 
                 <div className="max-w-7xl mx-auto relative z-10">
                     <h2
@@ -195,7 +196,7 @@ const HomeLeaderboardSection = () => {
                         {leaderboardData.map((hostel) => (
                             <div
                                 key={hostel.rank}
-                                className="leaderboard-entry bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-800 hover:border-cyan-500/50 transition-all duration-300 relative overflow-hidden group"
+                                className="leaderboard-entry bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-800 hover:border-primary transition-all duration-300 relative overflow-hidden group"
                             >
                                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/0 via-cyan-500/5 to-cyan-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
@@ -253,7 +254,7 @@ const HomeLeaderboardSection = () => {
                         </button>
 
                         <Link href="/leaderboard" className="w-full sm:w-auto">
-                            <button className="group relative w-full px-8 py-4 bg-transparent border-2 border-primary text-primary font-bold text-lg rounded-lg overflow-hidden transition-all duration-300 hover:scale-105 hover:bg-cyan-500/10 hover:shadow-2xl hover:shadow- neon-button-right">
+                            <button className="group relative w-full px-8 py-4 bg-transparent border-2 border-primary text-primary font-bold text-lg rounded-lg overflow-hidden transition-all duration-300 hover:scale-105 hover:bg-primary/10 hover:shadow-2xl hover:shadow-primary/50 neon-button-right">
                                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/0 via-cyan-500/20 to-cyan-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                 <span className="relative flex items-center justify-center gap-2">
                                     <Trophy className="w-5 h-5" />

@@ -81,7 +81,7 @@ const LeaderboardPage = () => {
     setLoading(true);
     try {
       const token = getCookie("authToken");
-      
+
       // Fetch player scores (for games/players tabs)
       const scoresRes = await fetch(`https://backend.glitchiith.co.in/api/get-scores`, {
         headers: { Authorization: token ? `Bearer ${token}` : "" },
@@ -92,7 +92,7 @@ const LeaderboardPage = () => {
           setAllScores(scoresData.scores);
         }
       }
-      
+
       // Fetch overall hostel leaderboard (weighted, from backend)
       const leaderboardRes = await fetch(`https://backend.glitchiith.co.in/api/leaderboard/hostels`, {
         headers: { Authorization: token ? `Bearer ${token}` : "" },
@@ -103,7 +103,7 @@ const LeaderboardPage = () => {
           setOverallData(leaderboardData.leaderboard);
         }
       }
-      
+
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -210,9 +210,8 @@ const LeaderboardPage = () => {
 
     return (
       <div
-        className={`relative bg-gradient-to-br from-amber-900/30 via-yellow-900/20 to-amber-900/30 backdrop-blur-sm rounded-lg p-4 border-2 ${
-          isInList ? 'border-yellow-500' : 'border-amber-500'
-        } transition-all duration-300 hover:shadow-2xl hover:shadow-yellow-500/50 user-stats-card min-w-0`}
+        className={`relative bg-gradient-to-br from-amber-900/30 via-yellow-900/20 to-amber-900/30 backdrop-blur-sm rounded-lg p-4 border-2 ${isInList ? 'border-yellow-500' : 'border-amber-500'
+          } transition-all duration-300 hover:shadow-2xl hover:shadow-yellow-500/50 user-stats-card min-w-0`}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/0 via-yellow-500/10 to-yellow-500/0 rounded-lg animate-pulse-slow"></div>
         <div className="absolute -top-3 -right-3 bg-gradient-to-r from-yellow-400 to-amber-500 text-black px-3 py-1 rounded-full font-bold text-xs flex items-center gap-1 shadow-lg animate-bounce-slow">
@@ -251,29 +250,27 @@ const LeaderboardPage = () => {
       <div className="max-w-7xl mx-auto mb-8">
         <div className="text-center mb-8">
           <h1 className="text-5xl md:text-7xl font-bold mb-4 neon-text">
-            <span className="hidden sm:inline">🎮 </span>
             LEADERBOARD
-            <span className="hidden sm:inline"> 🎮</span>
           </h1>
+          <br />
           <p className="text-xl text-[var(--primary)]">
-            Inter-Hostel Gaming Championship
+            Glitch's Inter-Hostel Gaming Championship
           </p>
         </div>
 
         <div className="flex flex-wrap justify-center gap-4 mb-8">
           {[
-            { tab: "overall", icon: <Users className="inline w-5 h-5 mr-2" />, label: "Overall Hostels" },
-            { tab: "games", icon: <Zap className="inline w-5 h-5 mr-2" />, label: "Game Hostels" },
+            { tab: "overall", icon: <Users className="inline w-5 h-5 mr-2" />, label: "Overall" },
+            { tab: "games", icon: <Zap className="inline w-5 h-5 mr-2" />, label: "Game-wise" },
             { tab: "players", icon: <Trophy className="inline w-5 h-5 mr-2" />, label: "Top Players" },
           ].map(({ tab, icon, label }) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab as any)}
-              className={`px-6 py-3 rounded-lg font-bold transition-all duration-300 ${
-                activeTab === tab
+              className={`px-6 py-3 rounded-lg font-bold transition-all duration-300 ${activeTab === tab
                   ? "bg-gradient-to-r from-green-900 to-green-800 shadow-lg shadow-[var(--primary)]/70 scale-105"
                   : "bg-gray-800 hover:bg-gray-700"
-              }`}
+                }`}
             >
               {icon}
               {label}
@@ -287,11 +284,10 @@ const LeaderboardPage = () => {
               <button
                 key={gameNum}
                 onClick={() => setSelectedGame(gameNum)}
-                className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-                  selectedGame === gameNum
+                className={`px-4 py-2 rounded-lg font-semibold transition-all ${selectedGame === gameNum
                     ? "bg-gradient-to-r from-green-900 to-green-800 shadow-md shadow-[var(--primary)]/60"
                     : "bg-gray-700 hover:bg-gray-600"
-                }`}
+                  }`}
               >
                 {Games_Forward[gameNum as keyof typeof Games_Forward].game_name}
               </button>
@@ -327,8 +323,8 @@ const LeaderboardPage = () => {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-3xl font-bold text-[var(--primary)]">{hostel.total_score.toFixed(2)}</p>
-                        <p className="text-sm text-gray-400">Total weighted Score</p>
+                        <p className="text-3xl font-bold text-[var(--primary)]">{Math.round(hostel.total_score)}</p>
+                        {/* <p className="text-sm text-gray-400">Total weighted Score</p> */}
                       </div>
                     </div>
 
@@ -402,8 +398,29 @@ const LeaderboardPage = () => {
                 )}
               </div>
             )}
+            <div className="max-w-full bg-gray-900/40 border border-gray-800 rounded-lg px-6 py-4 text-sm text-gray-300 leading-relaxed space-y-1 flex items-start gap-4">
+              <div className="mt-1 text-yellow-400 flex-shrink-0">
+                <Star className="w-5 h-5" />
+              </div>
+              <div className="flex-1 space-y-3">
+                <h4 className="font-semibold text-base text-yellow-300">Note</h4>
+                <ul className="space-y-2 list-disc list-inside">
+                  <li className="text-gray-200">
+                    Overall Hostels are calculated by summing up overall scores of top 50 players from respective hostel.
+                  </li>
+                  <li className="text-gray-200">
+                    Each individual game score is scaled appropriately and added together to evaluate overall player score.
+                  </li>
+                  <li className="text-gray-200">
+                    Game-wise standings are calculated by adding player's scores for each hostel. (No top 50 business)
+                  </li>
+                </ul>
+              </div>
+            </div>
           </>
         )}
+
+
       </div>
 
       <style jsx>{`
@@ -421,6 +438,7 @@ const LeaderboardPage = () => {
         .custom-scrollbar::-webkit-scrollbar-thumb{background:var(--primary); border-radius:10px;}
         .box-border { box-sizing: border-box; }
       `}</style>
+
     </div>
   );
 };

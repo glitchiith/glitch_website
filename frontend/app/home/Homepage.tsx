@@ -94,7 +94,9 @@ export default function HomePage() {
           />
         </div>
       )}
-
+  {/* Leaderboard */}
+      <HomeLeaderboardSection />
+      
       {/* About Section */}
       <div className="w-full min-h-[90vh] bg-site flex flex-col lg:flex-row items-center justify-center px-6 lg:px-12">
         <div className="w-full lg:w-1/2 p-6 lg:p-12 text-center lg:text-left">
@@ -103,7 +105,7 @@ export default function HomePage() {
           </h1>
           <br/>
           <p className="text-white text-base md:text-lg leading-relaxed">
-            Glitch, the epicenter of gaming and game development at IIT H. Join
+            Glitch, the epicenter of gaming and game development at IITH. Join
             thrilling tournaments, workshops, and coding sessions.
           </p>
           {/* <Link href="/about">
@@ -125,8 +127,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Leaderboard */}
-      <HomeLeaderboardSection />
+    
     <div className="w-full h-24 bg-site" />
 
     </>
