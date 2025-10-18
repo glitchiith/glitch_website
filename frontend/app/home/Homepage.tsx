@@ -136,10 +136,10 @@ export default function HomePage() {
       )}
 
       {shouldShowGame && (
-        <div className="w-360 h-200 gi py-0   ">
+        <div className="w-full h-200 flex justify-center items-center overflow-hidden">
           <iframe
             src="/gameglitch/Final/index.html"
-            className="w-full h-full border-none"
+            className="w-full max-w-4xl h-full border-none"
             title="Topdown Game"
             id="unityIframe"
             allowFullScreen
