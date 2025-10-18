@@ -33,31 +33,34 @@ export default function LoginPage() {
     const uid = user.uid;
     const token = await user.getIdToken();
 
+    const isProd = process.env.NODE_ENV === "production";
     // Instead of setCookie
 setCookie("authToken", token, {
   path: "/",
   maxAge: 60 * 60 * 24,
-  domain: ".glitchiith.co.in", // allow subdomains like backend.glitchiith.co.in
-  secure: true,                 // must be HTTPS if SameSite=None
-  sameSite: "none",             // required for cross-site cookies
-  httpOnly: false,               // optional, prevents JS access
+  domain: isProd ? ".glitchiith.co.in" : undefined,
+    secure: isProd,                 // must be HTTPS if SameSite=None
+  sameSite: isProd ? "none" : "lax",
+    httpOnly: false,               // optional, prevents JS access
 });
 
 setCookie("uid", uid, {
   path: "/",
   maxAge: 60 * 60 * 24,
-  domain: ".glitchiith.co.in",
-  secure: true,
-  sameSite: "none",
+  domain: isProd ? ".glitchiith.co.in" : undefined,
+    secure: isProd, 
+  sameSite: isProd ? "none" : "lax",
+
   httpOnly: false,
 });
 
 setCookie("guestMode", false, {
   path: "/",
   maxAge: 60 * 60 * 24,
-  domain: ".glitchiith.co.in",
-  secure: true,
-  sameSite: "none",
+  domain: isProd ? ".glitchiith.co.in" : undefined,
+    secure: isProd,
+  sameSite: isProd ? "none" : "lax",
+
   httpOnly: false,
 });
 

@@ -41,18 +41,34 @@ export default function Header() {
 
   const handleLogin = () => router.push("/login");
 
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      deleteCookie("authToken", { path: "/" });
-      deleteCookie("guestMode", { path: "/" });
-      setIsLoggedIn(false);
-      window.dispatchEvent(new Event("storage"));
-      router.push("/");
-    } catch (err) {
-      console.error("Logout error:", err);
-    }
-  };
+const handleLogout = async () => {
+  try {
+    // 1️⃣ Sign out from Firebase
+    await signOut(auth);
+
+    // 2️⃣ Clear cookies
+    deleteCookie("authToken", { path: "/" });
+    deleteCookie("uid", { path: "/" });
+    deleteCookie("guestMode", { path: "/" });
+
+    // 3️⃣ Clear localStorage (if used)
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("uid");
+    localStorage.removeItem("guestMode");
+
+    // 4️⃣ Update UI / state
+    setIsLoggedIn(false);
+    // setIsGuest(true); // reset guest mode if needed
+
+    // 5️⃣ Broadcast change to other tabs
+    window.dispatchEvent(new Event("storage"));
+
+    // 6️⃣ Navigate away
+    router.push("/");
+  } catch (err) {
+    console.error("Logout error:", err);
+  }
+};
 
   return (
     <header
