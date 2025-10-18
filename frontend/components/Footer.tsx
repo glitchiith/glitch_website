@@ -1,9 +1,16 @@
 "use client";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { FaInstagram, FaLinkedin, FaGithub, FaEnvelope } from "react-icons/fa";
 
 export default function Footer() {
-  const currentYear = new Date().getFullYear();
+  const [currentYear, setCurrentYear] = useState<number | null>(null);
+
+  useEffect(() => {
+    setCurrentYear(new Date().getFullYear());
+  }, []);
+
+  if (currentYear === null) return null;
 
   return (
     <footer
