@@ -251,12 +251,11 @@ const LeaderboardPage = () => {
       <div className="max-w-7xl mx-auto mb-8">
         <div className="text-center mb-8">
           <h1 className="text-5xl md:text-7xl font-bold mb-4 neon-text">
-            <span className="hidden sm:inline">🎮 </span>
             LEADERBOARD
-            <span className="hidden sm:inline"> 🎮</span>
           </h1>
+          <br/>
           <p className="text-xl text-[var(--primary)]">
-            Inter-Hostel Gaming Championship
+           Glitch's Inter-Hostel Gaming Championship
           </p>
         </div>
 
@@ -402,8 +401,11 @@ const LeaderboardPage = () => {
                 )}
               </div>
             )}
+            <p>Note: Overall Hostels are calculated by summing up overall scores of top 50 players from respective hostel. Each individual game score is scaled appropiately and added togethor to evaluate overall player score</p>
           </>
         )}
+
+
       </div>
 
       <style jsx>{`
@@ -421,6 +423,7 @@ const LeaderboardPage = () => {
         .custom-scrollbar::-webkit-scrollbar-thumb{background:var(--primary); border-radius:10px;}
         .box-border { box-sizing: border-box; }
       `}</style>
+      
     </div>
   );
 };
