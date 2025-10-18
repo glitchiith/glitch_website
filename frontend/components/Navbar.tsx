@@ -47,7 +47,7 @@ export default function Header() {
           />
           <span
             className="text-3xl font-bold text-green-400"
-            style={{ 
+            style={{
               textShadow: "0 0 20px rgba(0, 255, 0, 0.5)",
               letterSpacing: "-0.02em"
             }}
@@ -127,7 +127,7 @@ export default function Header() {
               </Link>
             ))}
             {/* Mobile Login/Logout Button */}
-            {isLoggedIn ? (
+            {/* {isLoggedIn ? (
               <button
                 className="text-left text-red-400 text-base font-medium px-4 py-2 rounded-lg 
                          hover:bg-red-500/10 transition-all duration-200"
@@ -143,7 +143,7 @@ export default function Header() {
               >
                 Login
               </button>
-            )}
+            )} */}
           </nav>
         </div>
       )}

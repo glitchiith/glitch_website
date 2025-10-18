@@ -171,7 +171,7 @@ const HomeLeaderboardSection = () => {
 
             <div
                 ref={sectionRef}
-                className="w-full min-h-[50vh] bg-[#0B0F13] relative overflow-hidden py-8 px-6 lg:px-8"
+                className="w-full min-h-[50vh] bg-site relative overflow-hidden py-8 px-6 lg:px-8"
             >
                 {/* Background glows */}
                 <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl"></div>
@@ -181,14 +181,15 @@ const HomeLeaderboardSection = () => {
                     <h2
                         ref={titleRef}
                         className="text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-4"
-            
+
                     >
                         🏆 HOSTEL LEADERBOARD 🏆
                     </h2>
+                    <br />
                     <p className="text-center text-white text-lg mb-8">
                         Inter-Hostel Gaming Championship Standings
                     </p>
-
+                    <br />
                     {/* Leaderboard entries */}
                     <div ref={barsRef} className="space-y-3 mb-4">
                         {leaderboardData.map((hostel) => (
@@ -211,7 +212,7 @@ const HomeLeaderboardSection = () => {
                                         </div>
                                         <div className="text-right">
                                             <p className="text-3xl font-bold text-primary neon-text-score">
-                                                {hostel.total_score.toLocaleString()}
+                                                {Math.round(hostel.total_score).toLocaleString()}
                                             </p>
                                             <p className="text-sm text-gray-400">Total Points</p>
                                         </div>
@@ -233,6 +234,8 @@ const HomeLeaderboardSection = () => {
                             </div>
                         ))}
                     </div>
+                    <br />
+                    <br />
 
                     {/* Buttons */}
                     <div ref={buttonsRef} className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
@@ -301,6 +304,7 @@ const HomeLeaderboardSection = () => {
                 }
 
             `}</style>
+
         </>
     );
 };
