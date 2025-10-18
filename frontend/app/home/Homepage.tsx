@@ -39,6 +39,7 @@ export default function HomePage() {
   // Define getUID for desktop logged-in
   useEffect(() => {
     if (shouldShowGame && isLoggedIn) {
+      console.log("HEHEHHE SETTING GETUID");
       (window as any).getUID = async () => {
         let token;
         console.log("GETUID CALLED");
