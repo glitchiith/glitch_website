@@ -1,7 +1,7 @@
 "use client";
 
 import { Games_Forward } from "@/lib/constants/games";
-import { HOSTELS } from "@/lib/constants/hostels"; // Import HOSTELS mapping
+import { HOSTELS } from "@/lib/constants/hostels";
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Trophy, Medal, Crown, Star, Users, Zap } from "lucide-react";
 import { getCookie } from "cookies-next";
@@ -76,23 +76,36 @@ const LeaderboardPage = () => {
     setIsAuthenticated(!!token && !!uid);
   }, []);
 
+  // Fetch both overall leaderboard AND player scores
   const fetchAllScores = async () => {
     setLoading(true);
     try {
       const token = getCookie("authToken");
-      const res = await fetch(`https://backend.glitchiith.co.in/api/get-scores`, {
+      
+      // Fetch player scores (for games/players tabs)
+      const scoresRes = await fetch(`https://backend.glitchiith.co.in/api/get-scores`, {
         headers: { Authorization: token ? `Bearer ${token}` : "" },
       });
-      if (!res.ok) throw new Error(`Error ${res.status}`);
-      const data: { scores: PlayerBackend[]; success: boolean } = await res.json();
-      if (!data.scores || !Array.isArray(data.scores)) {
-        console.error("JSON structure unexpected:", data);
-        setLoading(false);
-        return;
+      if (scoresRes.ok) {
+        const scoresData = await scoresRes.json();
+        if (scoresData.scores && Array.isArray(scoresData.scores)) {
+          setAllScores(scoresData.scores);
+        }
       }
-      setAllScores(data.scores);
+      
+      // Fetch overall hostel leaderboard (weighted, from backend)
+      const leaderboardRes = await fetch(`https://backend.glitchiith.co.in/api/leaderboard/hostels`, {
+        headers: { Authorization: token ? `Bearer ${token}` : "" },
+      });
+      if (leaderboardRes.ok) {
+        const leaderboardData = await leaderboardRes.json();
+        if (leaderboardData.leaderboard && Array.isArray(leaderboardData.leaderboard)) {
+          setOverallData(leaderboardData.leaderboard);
+        }
+      }
+      
     } catch (error) {
-      console.error("Error fetching scores:", error);
+      console.error("Error fetching data:", error);
     }
     setLoading(false);
   };
@@ -109,9 +122,11 @@ const LeaderboardPage = () => {
     });
   }, [overallData]);
 
+  // Calculate ONLY game-specific and player data (NOT overall)
   useEffect(() => {
     if (!allScores.length) return;
 
+    // Game-specific hostel rankings (recalculated per game)
     const hostelMap: Record<number | string, HostelScore> = {};
     allScores.forEach((p) => {
       const hostelId = p.hostel_id ?? -1;
@@ -119,44 +134,41 @@ const LeaderboardPage = () => {
         hostelMap[hostelId] = {
           rank: 0,
           hostel_id: p.hostel_id ?? null,
-          hostel_name: hostelId === -1 ? "Unassigned" : HOSTELS[hostelId] || `Hostel ${hostelId}`, // Use HOSTELS mapping
+          hostel_name: hostelId === -1 ? "Unassigned" : HOSTELS[hostelId] || `Hostel ${hostelId}`,
           total_score: 0,
           participant_count: 0,
           score_percentage: 0,
         };
       }
+      // Only sum scores for the SELECTED game
       hostelMap[hostelId].total_score += p[`bestScore${selectedGame}`] || 0;
       hostelMap[hostelId].participant_count! += 1;
     });
 
-    let overallArray = Object.values(hostelMap);
-
-    //smooth decreasing bar formula
-    overallArray = overallArray
+    let gameArray = Object.values(hostelMap)
       .sort((a, b) => b.total_score - a.total_score)
       .map((h, index, arr) => {
         const rank = index + 1;
-        const maxScore = arr[0]?.total_score || 1; // avoid divide by zero
-        const score_percentage = maxScore
-          ? Math.sqrt(h.total_score / maxScore) * 100
-          : 0;
+        const maxScore = arr[0]?.total_score || 1;
+        const score_percentage = maxScore ? Math.sqrt(h.total_score / maxScore) * 100 : 0;
         return { ...h, rank, score_percentage };
       });
 
-    setOverallData(overallArray);
-    setGameData(overallArray);
+    setGameData(gameArray);
 
+    // Player rankings (recalculated per game)
     const players: Player[] = allScores
       .map((p) => ({
         uid: p.uid,
         name: p.name,
-        hostel_name: p.hostel_id ? HOSTELS[p.hostel_id] || `Hostel ${p.hostel_id}` : "Unassigned", // Use HOSTELS mapping
+        hostel_name: p.hostel_id ? HOSTELS[p.hostel_id] || `Hostel ${p.hostel_id}` : "Unassigned",
         score: p[`bestScore${selectedGame}`] || 0,
       }))
       .sort((a, b) => b.score - a.score)
       .map((p, idx) => ({ ...p, rank: idx + 1 }));
     setPlayerData(players);
 
+    // User stats
     const tokenUid = getCookie("uid");
     if (tokenUid) {
       const user = players.find((p) => p.uid === tokenUid);
@@ -200,7 +212,7 @@ const LeaderboardPage = () => {
       <div
         className={`relative bg-gradient-to-br from-amber-900/30 via-yellow-900/20 to-amber-900/30 backdrop-blur-sm rounded-lg p-4 border-2 ${
           isInList ? 'border-yellow-500' : 'border-amber-500'
-        } transition-all duration-300 hover:shadow-2xl hover:shadow-yellow-500/50 user-stats-card`}
+        } transition-all duration-300 hover:shadow-2xl hover:shadow-yellow-500/50 user-stats-card min-w-0`}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/0 via-yellow-500/10 to-yellow-500/0 rounded-lg animate-pulse-slow"></div>
         <div className="absolute -top-3 -right-3 bg-gradient-to-r from-yellow-400 to-amber-500 text-black px-3 py-1 rounded-full font-bold text-xs flex items-center gap-1 shadow-lg animate-bounce-slow">
@@ -296,7 +308,7 @@ const LeaderboardPage = () => {
           </div>
         ) : (
           <>
-            {/* Overall Hostels */}
+            {/* Overall Hostels - Backend weighted scores */}
             {activeTab === "overall" && (
               <div ref={barsRef} className="space-y-4 px-2 md:px-0">
                 {overallData.map((hostel) => (
@@ -315,12 +327,11 @@ const LeaderboardPage = () => {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-3xl font-bold text-[var(--primary)]">{hostel.total_score.toLocaleString()}</p>
-                        <p className="text-sm text-gray-400">Total Score</p>
+                        <p className="text-3xl font-bold text-[var(--primary)]">{hostel.total_score.toFixed(2)}</p>
+                        <p className="text-sm text-gray-400">Total weighted Score</p>
                       </div>
                     </div>
 
-                    {/* Modified Bar */}
                     <div className="relative h-8 bg-gray-800 rounded-full overflow-hidden shadow-inner">
                       <div
                         className={`bar-fill absolute h-full bg-gradient-to-r ${getRankColor(hostel.rank)} transition-all duration-1000 ease-out`}
@@ -337,18 +348,19 @@ const LeaderboardPage = () => {
               </div>
             )}
 
+            {/* Games - Game-specific hostel scores */}
             {activeTab === "games" && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 px-2 md:px-0 max-h-[600px] overflow-y-auto custom-scrollbar">
+              <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[600px] overflow-y-auto custom-scrollbar box-border">
                 {gameData.map((item) => (
                   <div
                     key={item.hostel_id}
-                    className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700 hover:border-[var(--primary)] transition-all duration-300 flex items-center justify-between"
+                    className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700 hover:border-[var(--primary)] transition-all duration-300 flex items-center justify-between min-w-0"
                   >
                     <div className="flex items-center gap-4">
                       <div className={`w-10 h-10 rounded-full bg-gradient-to-r ${getRankColor(item.rank)} flex items-center justify-center font-bold`}>
                         {item.rank}
                       </div>
-                      <h3 className="text-lg font-bold">{item.hostel_name}</h3>
+                      <h3 className="text-lg font-bold truncate">{item.hostel_name}</h3>
                     </div>
                     <p className="text-2xl font-bold text-purple-400">{item.total_score.toLocaleString()}</p>
                   </div>
@@ -356,13 +368,14 @@ const LeaderboardPage = () => {
               </div>
             )}
 
+            {/* Players - Game-specific player scores */}
             {activeTab === "players" && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 px-2 md:px-0 max-h-[600px] overflow-y-auto custom-scrollbar">
+              <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[600px] overflow-y-auto custom-scrollbar box-border overflow-x-hidden">
                 {topPlayers.map((item) => {
                   const isCurrentUser = isAuthenticated && currentUser && item.uid === currentUser.uid;
                   if (isCurrentUser) {
                     return (
-                      <div key={item.rank} className="sm:col-span-2">
+                      <div key={item.rank} className="sm:col-span-2 min-w-0">
                         {renderUserStatsCard(true)}
                       </div>
                     );
@@ -370,13 +383,13 @@ const LeaderboardPage = () => {
                   return (
                     <div
                       key={item.rank}
-                      className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700 hover:border-green-400 transition-all duration-300 flex items-center justify-between"
+                      className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700 hover:border-green-400 transition-all duration-300 flex items-center justify-between min-w-0"
                     >
                       <div className="flex items-center gap-4">
                         <div className={`w-10 h-10 rounded-full bg-gradient-to-r ${getRankColor(item.rank)} flex items-center justify-center font-bold`}>{item.rank}</div>
-                        <div>
-                          <h3 className="text-lg font-bold">{item.name}</h3>
-                          <p className="text-sm text-gray-400">{item.hostel_name}</p>
+                        <div className="flex-1">
+                          <h3 className="text-lg font-bold truncate">{item.name}</h3>
+                          <p className="text-sm text-gray-400 truncate">{item.hostel_name}</p>
                         </div>
                       </div>
                       <p className="text-2xl font-bold text-green-400">{item.score.toLocaleString()}</p>
@@ -385,7 +398,7 @@ const LeaderboardPage = () => {
                 })}
 
                 {isAuthenticated && currentUser && !isUserInTop20 && (
-                  <div className="sm:col-span-2 mt-4">{renderUserStatsCard(false)}</div>
+                  <div className="sm:col-span-2 mt-4 min-w-0">{renderUserStatsCard(false)}</div>
                 )}
               </div>
             )}
@@ -394,7 +407,7 @@ const LeaderboardPage = () => {
       </div>
 
       <style jsx>{`
-        :root { --primary: oklch(0.85 0.35 135); }
+        :root { --primary: oklch(0.85 0.35 135); overflow-x: hidden; }
         .neon-text { text-shadow: 0 0 8px var(--primary),0 0 16px var(--primary),0 0 30px var(--primary),0 0 45px var(--primary); animation: pulse 2s ease-in-out infinite; }
         .glow-text { text-shadow: 0 0 10px rgba(250,204,21,0.8),0 0 20px rgba(250,204,21,0.5),0 0 30px rgba(250,204,21,0.3); }
         @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.9;} }
@@ -404,8 +417,9 @@ const LeaderboardPage = () => {
         .animate-bounce-slow{animation:bounce-slow 2s ease-in-out infinite;}
         .user-stats-card {animation: slide-up 0.5s ease-out;}
         @keyframes slide-up { from{opacity:0; transform:translateY(20px);} to{opacity:1; transform:translateY(0);} }
-        .custom-scrollbar::-webkit-scrollbar{width:8px;}
+        .custom-scrollbar::-webkit-scrollbar{width:8px; height: 0;} /* Hide horizontal scrollbar */
         .custom-scrollbar::-webkit-scrollbar-thumb{background:var(--primary); border-radius:10px;}
+        .box-border { box-sizing: border-box; }
       `}</style>
     </div>
   );
