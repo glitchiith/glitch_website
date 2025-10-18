@@ -12,7 +12,16 @@ export default function LoginPage() {
   const handleGoogleSignIn = async () => {
   try {
     const provider = new GoogleAuthProvider();
-    const result = await signInWithPopup(auth, provider);
+    let result;
+    try{
+      result = await signInWithPopup(auth, provider);
+
+    }
+    catch(err){
+      setError("Popup closed before completing sign-in.");
+      return;
+    }
+    
     const user = result.user;
 
     if (!user.email || !user.email.endsWith("@iith.ac.in")) {
