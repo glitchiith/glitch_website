@@ -47,7 +47,7 @@ export default function HomePage() {
         } catch {
           return null;
         }
-
+	console.log("HERE IT IS:");
         try {
           const res = await apiFetch("/api/get-uid", {
             method: "GET",

@@ -27,6 +27,6 @@ func GetScores(c *gin.Context) {
 func Greet(c *gin.Context){
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"message": "Hello World",
+		"message": "Hello World ~~~~~~!!!!!!!!!:",
 	})
 }
