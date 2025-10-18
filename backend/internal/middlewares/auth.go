@@ -7,7 +7,6 @@ import (
 
 	"github.com/Panshul-Jindal/glitch_website/backend/config"
 	"github.com/gin-gonic/gin"
-	"fmt"
 )
 
 // FirebaseAuth verifies Firebase ID token from Authorization header or cookie
@@ -25,9 +24,7 @@ func FirebaseAuth() gin.HandlerFunc {
 			if err == nil && cookie != "" {
 				idToken = cookie
 			}
-			fmt.Println("Cookie Token:", idToken)
 		}
-		fmt.Println("No cookie token found")
 
 		// Step 3: Handle guest users
 		if idToken == "" {
@@ -57,7 +54,6 @@ func FirebaseAuth() gin.HandlerFunc {
 		}
 
 		// Step 5: Attach UID to context for downstream handlers
-		
 		c.Set("uid", token.UID)
 		c.Next()
 	}
