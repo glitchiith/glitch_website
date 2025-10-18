@@ -34,10 +34,32 @@ export default function LoginPage() {
     const token = await user.getIdToken();
 
     // Instead of setCookie
-    setCookie("authToken", token, { path: "/", maxAge: 60*60*24 });
-    setCookie("uid", uid, { path: "/", maxAge: 60*60*24 });
-    setCookie("guestMode", false, { path: "/", maxAge: 60*60*24 });
+setCookie("authToken", token, {
+  path: "/",
+  maxAge: 60 * 60 * 24,
+  domain: ".glitchiith.co.in", // allow subdomains like backend.glitchiith.co.in
+  secure: true,                 // must be HTTPS if SameSite=None
+  sameSite: "none",             // required for cross-site cookies
+  httpOnly: true,               // optional, prevents JS access
+});
 
+setCookie("uid", uid, {
+  path: "/",
+  maxAge: 60 * 60 * 24,
+  domain: ".glitchiith.co.in",
+  secure: true,
+  sameSite: "none",
+  httpOnly: true,
+});
+
+setCookie("guestMode", false, {
+  path: "/",
+  maxAge: 60 * 60 * 24,
+  domain: ".glitchiith.co.in",
+  secure: true,
+  sameSite: "none",
+  httpOnly: true,
+});
     // 🚀 Register new user in DB if first time
     await apiFetch("/api/register-user", {
       method: "POST",
