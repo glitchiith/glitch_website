@@ -5,19 +5,17 @@ import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { apiFetch } from "@/lib/api";
+
 export default function LoginPage() {
   const [error, setError] = useState("");
   const router = useRouter();
-
-  const handleGoogleSignIn = async () => {
+const handleGoogleSignIn = async () => {
   try {
     const provider = new GoogleAuthProvider();
     let result;
-    try{
+    try {
       result = await signInWithPopup(auth, provider);
-
-    }
-    catch(err){
+    } catch(err) {
       setError("Popup closed before completing sign-in.");
       return;
     }
@@ -32,59 +30,49 @@ export default function LoginPage() {
 
     const uid = user.uid;
     const token = await user.getIdToken();
-
     const isProd = process.env.NODE_ENV === "production";
-    // Instead of setCookie
-setCookie("authToken", token, {
-  path: "/",
-  maxAge: 60 * 60 * 24,
-  domain: isProd ? ".glitchiith.co.in" : undefined,
-    secure: isProd,                 // must be HTTPS if SameSite=None
-  sameSite: isProd ? "none" : "lax",
-    httpOnly: false,               // optional, prevents JS access
-});
 
-setCookie("uid", uid, {
-  path: "/",
-  maxAge: 60 * 60 * 24,
-  domain: isProd ? ".glitchiith.co.in" : undefined,
-    secure: isProd, 
-  sameSite: isProd ? "none" : "lax",
+    // Set all cookies at once
+    const cookieOptions = {
+      path: "/",
+      maxAge: 60 * 60 * 24,
+      domain: isProd ? ".glitchiith.co.in" : undefined,
+      secure: isProd,
+      sameSite: isProd ? ("none" as const) : ("lax" as const),
+      httpOnly: false
+    };
 
-  httpOnly: false,
-});
+    try {
+      setCookie("authToken", token, cookieOptions);
+      setCookie("uid", uid, cookieOptions);
+      setCookie("guestMode", "false", cookieOptions);
 
-setCookie("guestMode", false, {
-  path: "/",
-  maxAge: 60 * 60 * 24,
-  domain: isProd ? ".glitchiith.co.in" : undefined,
-    secure: isProd,
-  sameSite: isProd ? "none" : "lax",
+      // Set localStorage after cookies are confirmed
+      localStorage.setItem("uid", uid);
+      localStorage.setItem("authToken", token);
+      localStorage.setItem("guestMode", "false");
 
-  httpOnly: false,
-});
+      // Register user
+      await apiFetch("/api/register-user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          email: user.email,
+          name: user.displayName,
+        }),
+      });
 
-// After getting uid and token
-localStorage.setItem("uid", uid);
-localStorage.setItem("authToken", token);
-localStorage.setItem("guestMode", "false");
+      // Trigger storage event and force reload
+      window.dispatchEvent(new Event("storage"));
+      window.location.href = "/";
+    } catch (err) {
+      setError("Failed to set authentication data. Please try again.");
+      console.error("Cookie/Storage Error:", err);
+    }
 
-
-    // 🚀 Register new user in DB if first time
-    await apiFetch("/api/register-user", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        email: user.email,
-        name: user.displayName,
-      }),
-    });
-    console.log("User registered or already exists.");
-    window.dispatchEvent(new Event("storage"));
-    router.push("/");
   } catch (err: any) {
     setError(err.message);
   }

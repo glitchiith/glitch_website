@@ -8,6 +8,7 @@ import { getCookie, deleteCookie } from "cookies-next";
 import Image from "next/image";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
+import { handleLogout } from '@/lib/auth';
 
 const leftLinks = [
   { name: "Home", href: "/" },
@@ -41,34 +42,6 @@ export default function Header() {
 
   const handleLogin = () => router.push("/login");
 
-const handleLogout = async () => {
-  try {
-    // 1️⃣ Sign out from Firebase
-    await signOut(auth);
-
-    // 2️⃣ Clear cookies
-    deleteCookie("authToken", { path: "/" });
-    deleteCookie("uid", { path: "/" });
-    deleteCookie("guestMode", { path: "/" });
-
-    // 3️⃣ Clear localStorage (if used)
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("uid");
-    localStorage.removeItem("guestMode");
-
-    // 4️⃣ Update UI / state
-    setIsLoggedIn(false);
-    // setIsGuest(true); // reset guest mode if needed
-
-    // 5️⃣ Broadcast change to other tabs
-    window.dispatchEvent(new Event("storage"));
-
-    // 6️⃣ Navigate away
-    router.push("/");
-  } catch (err) {
-    console.error("Logout error:", err);
-  }
-};
 
   return (
     <header
