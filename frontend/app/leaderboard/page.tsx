@@ -1,6 +1,7 @@
 "use client";
 
 import { Games_Forward } from "@/lib/constants/games";
+import { HOSTELS } from "@/lib/constants/hostels"; // Import HOSTELS mapping
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Trophy, Medal, Crown, Star, Users, Zap } from "lucide-react";
 import { getCookie } from "cookies-next";
@@ -118,7 +119,7 @@ const LeaderboardPage = () => {
         hostelMap[hostelId] = {
           rank: 0,
           hostel_id: p.hostel_id ?? null,
-          hostel_name: hostelId === -1 ? "Unassigned" : `Hostel ${p.hostel_id}`,
+          hostel_name: hostelId === -1 ? "Unassigned" : HOSTELS[hostelId] || `Hostel ${hostelId}`, // Use HOSTELS mapping
           total_score: 0,
           participant_count: 0,
           score_percentage: 0,
@@ -130,7 +131,7 @@ const LeaderboardPage = () => {
 
     let overallArray = Object.values(hostelMap);
 
-    // 🔥 Modified: smooth decreasing bar formula
+    //smooth decreasing bar formula
     overallArray = overallArray
       .sort((a, b) => b.total_score - a.total_score)
       .map((h, index, arr) => {
@@ -149,7 +150,7 @@ const LeaderboardPage = () => {
       .map((p) => ({
         uid: p.uid,
         name: p.name,
-        hostel_name: p.hostel_id ? `Hostel ${p.hostel_id}` : "Unassigned",
+        hostel_name: p.hostel_id ? HOSTELS[p.hostel_id] || `Hostel ${p.hostel_id}` : "Unassigned", // Use HOSTELS mapping
         score: p[`bestScore${selectedGame}`] || 0,
       }))
       .sort((a, b) => b.score - a.score)
@@ -296,46 +297,45 @@ const LeaderboardPage = () => {
         ) : (
           <>
             {/* Overall Hostels */}
-{activeTab === "overall" && (
-  <div ref={barsRef} className="space-y-4 px-2 md:px-0">
-    {overallData.map((hostel) => (
-      <div
-        key={hostel.hostel_id}
-        className="bg-gray-900/60 rounded-lg p-4 border border-gray-800 hover:border-[var(--primary)] transition-all duration-300"
-      >
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-2">
-          <div className="flex items-center gap-4 mb-2 md:mb-0">
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-r ${getRankColor(hostel.rank)}`}>
-              {getRankIcon(hostel.rank)}
-            </div>
-            <div>
-              <h3 className="text-xl font-bold">{hostel.hostel_name}</h3>
-              <p className="text-sm text-gray-400">{hostel.participant_count} participants</p>
-            </div>
-          </div>
-          <div className="text-right">
-            <p className="text-3xl font-bold text-[var(--primary)]">{hostel.total_score.toLocaleString()}</p>
-            <p className="text-sm text-gray-400">Total Score</p>
-          </div>
-        </div>
+            {activeTab === "overall" && (
+              <div ref={barsRef} className="space-y-4 px-2 md:px-0">
+                {overallData.map((hostel) => (
+                  <div
+                    key={hostel.hostel_id}
+                    className="bg-gray-900/60 rounded-lg p-4 border border-gray-800 hover:border-[var(--primary)] transition-all duration-300"
+                  >
+                    <div className="flex flex-col md:flex-row md:items-center justify-between mb-2">
+                      <div className="flex items-center gap-4 mb-2 md:mb-0">
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center bg-gradient-to-r ${getRankColor(hostel.rank)}`}>
+                          {getRankIcon(hostel.rank)}
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold">{hostel.hostel_name}</h3>
+                          <p className="text-sm text-gray-400">{hostel.participant_count} participants</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-3xl font-bold text-[var(--primary)]">{hostel.total_score.toLocaleString()}</p>
+                        <p className="text-sm text-gray-400">Total Score</p>
+                      </div>
+                    </div>
 
-        {/* Modified Bar */}
-        <div className="relative h-8 bg-gray-800 rounded-full overflow-hidden shadow-inner">
-          <div
-            className={`bar-fill absolute h-full bg-gradient-to-r ${getRankColor(hostel.rank)} transition-all duration-1000 ease-out`}
-            data-width={`${hostel.score_percentage}%`}
-            style={{ width: "0%" }}
-          ></div>
+                    {/* Modified Bar */}
+                    <div className="relative h-8 bg-gray-800 rounded-full overflow-hidden shadow-inner">
+                      <div
+                        className={`bar-fill absolute h-full bg-gradient-to-r ${getRankColor(hostel.rank)} transition-all duration-1000 ease-out`}
+                        data-width={`${hostel.score_percentage}%`}
+                        style={{ width: "0%" }}
+                      ></div>
 
-          <div className="absolute inset-0 flex items-center justify-center text-sm font-bold text-black">
-            {hostel.score_percentage?.toFixed(1)}%
-          </div>
-        </div>
-      </div>
-    ))}
-  </div>
-)}
-
+                      <div className="absolute inset-0 flex items-center justify-center text-sm font-bold text-black">
+                        {hostel.score_percentage?.toFixed(1)}%
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {activeTab === "games" && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 px-2 md:px-0 max-h-[600px] overflow-y-auto custom-scrollbar">
