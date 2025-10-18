@@ -2,7 +2,6 @@ package controller
 
 import (
     "context"
-    "encoding/json"
     "fmt"
     "net/http"
     "strconv"
@@ -112,20 +111,9 @@ func SubmitScore(c *gin.Context) {
 
     gameIDStr := parts[0]
     scoreStr := parts[len(parts)-1]
-    jsonPart := strings.Join(parts[1:len(parts)-1], "_")
+    uidStr = parts[1]
 
 
-
-    var uidPayload schema.UIDPayload
-    if err := json.Unmarshal([]byte(jsonPart), &uidPayload); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to parse UID JSON"})
-        return
-    }
-
-    if uidPayload.UID != uidStr {
-        c.JSON(http.StatusUnauthorized, gin.H{"error": "UID mismatch"})
-        return
-    }
 
     gameID, ok := GamesInverse[gameIDStr]
     if !ok {

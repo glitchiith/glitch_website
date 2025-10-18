@@ -9,9 +9,9 @@ func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
 	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"*"}
+	config.AllowOrigins = []string{"https://www.glitchiith.co.in", "https://glitchiith.co.in", "http://localhost:3000", "http://127.0.0.1:3000"}
 	config.AllowMethods = []string{"OPTIONS", "GET", "POST", "PUT", "DELETE"}
-	config.AllowHeaders = []string{"*"}
+	config.AllowHeaders = []string{"ORIGIN", "CONTENT-TYPE", "AUTHORIZATION"}
 	config.AllowCredentials = true
 	r.Use(cors.New(config))
 	// CORS middleware

@@ -50,6 +50,7 @@ export default function HomePage() {
           return null;
         }
         console.log("FIRST TRY BLOCK");
+	console.log("HERE IT IS:");
         try {
           const res = await apiFetch("/api/get-uid", {
             method: "GET",
