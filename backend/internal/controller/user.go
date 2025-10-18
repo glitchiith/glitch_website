@@ -26,7 +26,7 @@ var GamesInverse = map[string]int{
 
 func GetUID(c *gin.Context) {
     uid, exists := c.Get("uid")
-    
+	
     if !exists {
         c.JSON(http.StatusUnauthorized, gin.H{"error": "UID not found"})
         return
@@ -34,6 +34,9 @@ func GetUID(c *gin.Context) {
 
     c.JSON(http.StatusOK, gin.H{"uid": uid})
 }
+
+
+
 
 func RegisterUser(c *gin.Context) {
     uid, _ := c.Get("uid")
@@ -110,6 +113,8 @@ func SubmitScore(c *gin.Context) {
     gameIDStr := parts[0]
     scoreStr := parts[len(parts)-1]
     jsonPart := strings.Join(parts[1:len(parts)-1], "_")
+
+
 
     var uidPayload schema.UIDPayload
     if err := json.Unmarshal([]byte(jsonPart), &uidPayload); err != nil {

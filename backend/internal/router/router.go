@@ -12,7 +12,7 @@ func SetupRouter() *gin.Engine {
 	config.AllowOrigins = []string{"https://www.glitchiith.co.in", "https://glitchiith.co.in", "http://localhost", "http://127.0.0.1"}
 	config.AllowMethods = []string{"OPTIONS", "GET", "POST", "PUT", "DELETE"}
 	config.AllowHeaders = []string{"*"}
-	config.AllowCredentials = false
+	config.AllowCredentials = true
 	r.Use(cors.New(config))
 	// CORS middleware
 

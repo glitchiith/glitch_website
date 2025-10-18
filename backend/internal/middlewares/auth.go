@@ -54,6 +54,7 @@ func FirebaseAuth() gin.HandlerFunc {
 		}
 
 		// Step 5: Attach UID to context for downstream handlers
+		
 		c.Set("uid", token.UID)
 		c.Next()
 	}
