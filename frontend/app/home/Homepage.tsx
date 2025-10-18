@@ -39,7 +39,6 @@ export default function HomePage() {
   // Define getUID for desktop logged-in
   useEffect(() => {
     if (shouldShowGame && isLoggedIn) {
-      console.log("HERERERERERERERERRE");
       (window as any).getUID = async () => {
         let token;
         try {
@@ -48,7 +47,8 @@ export default function HomePage() {
         } catch {
           return null;
         }
-
+        console.log("HERERERERERERERERRE");
+        
         try {
           const res = await apiFetch("/api/get-uid", {
             method: "GET",
