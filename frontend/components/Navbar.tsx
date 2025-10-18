@@ -33,7 +33,7 @@ export default function Header() {
   const handleLogin = () => router.push("/login");
 
   return (
-    <header className="w-full flex items-center justify-between px-8 py-6 relative z-50 bg-[#0A0D10] border-b border-zinc-800/40 backdrop-blur-sm">
+    <header className="w-full flex items-center justify-between px-8 py-6 relative z-50 bg-site border-b border-zinc-800/40 backdrop-blur-sm">
       {/* LOGO + NAV LINKS */}
       <div className="flex items-center space-x-12">
         <Link href="/" className="flex items-center space-x-2 group">

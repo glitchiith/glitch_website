@@ -14,7 +14,7 @@ export default function Footer() {
 
   return (
     <footer
-      className="w-full border-t border-zinc-800 bg-[var(--footer-bg)] text-zinc-400 px-6 py-10 text-sm"
+      className="w-full border-t border-zinc-800 bg-site text-zinc-400 px-6 py-10 text-sm"
     >
       {/* --- DESKTOP / TABLET VIEW --- */}
       <div className="hidden md:flex max-w-6xl mx-auto w-full flex-row justify-between items-center">
@@ -178,8 +178,8 @@ export default function Footer() {
       </div>
 
       {/* --- Optional Animated Banner --- */}
-      <div className="marquee w-full mt-8 overflow-hidden bg-black/50 text-green-400 py-2 hidden md:block">
-        <style jsx>{`
+      {/* <div className="marquee w-full mt-8 overflow-hidden bg-black/50 text-green-400 py-2 hidden md:block"> */}
+        {/* <style jsx>{`
           .marquee-content {
             display: inline-block;
             animation: marquee 120s linear infinite;
@@ -189,12 +189,12 @@ export default function Footer() {
             0% { transform: translateX(0); }
             100% { transform: translateX(-100%); }
           }
-        `}</style>
+        `}</style> */}
         {/* Uncomment if you want the banner */}
         {/* <div className="marquee-content">
           {Array(20).fill(\`© ${currentYear} GLITCH CLUB IITH • \`).join(' ')}
         </div> */}
-      </div>
+      {/* </div> */}
     </footer>
   );
 }
