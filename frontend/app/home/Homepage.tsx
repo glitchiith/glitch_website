@@ -70,7 +70,7 @@ export default function HomePage() {
 
   return (
     <>
-      {shouldShowVideo && (
+      {/* {shouldShowVideo && (
         <div className="w-full h-[90vh] bg-gray-100 relative overflow-hidden">
           <video
             className="w-full h-[90vh] object-cover brightness-65"
@@ -81,7 +81,7 @@ export default function HomePage() {
             playsInline
           />
         </div>
-      )}
+      )} */}
 
       {shouldShowGame && (
         <div className="w-full h-200 flex justify-center items-center overflow-hidden">
@@ -96,7 +96,7 @@ export default function HomePage() {
       )}
   {/* Leaderboard */}
       <HomeLeaderboardSection />
-      
+
       {/* About Section */}
       <div className="w-full min-h-[90vh] bg-site flex flex-col lg:flex-row items-center justify-center px-6 lg:px-12">
         <div className="w-full lg:w-1/2 p-6 lg:p-12 text-center lg:text-left">
