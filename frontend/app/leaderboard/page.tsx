@@ -246,7 +246,7 @@ const LeaderboardPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-[#050A0A] to-black text-white p-4 md:p-8">
+    <div className="min-h-screen bg-site text-white p-4 md:p-8 backdrop-blur-sm">
       <div className="max-w-7xl mx-auto mb-8">
         <div className="text-center mb-8">
           <h1 className="text-5xl md:text-7xl font-bold mb-4 neon-text">
@@ -366,7 +366,7 @@ const LeaderboardPage = () => {
 
             {/* Players - Game-specific player scores */}
             {activeTab === "players" && (
-              <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[600px] overflow-y-auto custom-scrollbar box-border overflow-x-hidden">
+              <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[700px] overflow-y-auto custom-scrollbar box-border overflow-x-hidden py-4 px-3">
                 {topPlayers.map((item) => {
                   const isCurrentUser = isAuthenticated && currentUser && item.uid === currentUser.uid;
                   if (isCurrentUser) {
