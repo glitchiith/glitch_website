@@ -1,95 +1,103 @@
 package cron
 
 import (
-    "database/sql"
-    "encoding/json"
-    "log"
-    "os"
-    "path/filepath"
-    "time"
-"fmt"
-    "github.com/robfig/cron/v3"
+	"database/sql"
+	"encoding/json"
+	"fmt"
+	"log"
+	"os"
+	"path/filepath"
+	"time"
+
+	"github.com/robfig/cron/v3"
 )
 
 type UserBackup struct {
-    db *sql.DB
+	db *sql.DB
 }
 
 func NewUserBackup(db *sql.DB) *UserBackup {
-    // Create backups directory if it doesn't exist
-    if err := os.MkdirAll("backups", 0755); err != nil {
-        log.Printf("Error creating backups directory: %v", err)
-    }
-    return &UserBackup{
-        db: db,
-    }
+	// Create backups directory if it doesn't exist
+	if err := os.MkdirAll("backups", 0755); err != nil {
+		log.Printf("Error creating backups directory: %v", err)
+	}
+	return &UserBackup{
+		db: db,
+	}
 }
 
 func (ub *UserBackup) StartBackupCron() {
-    c := cron.New()
+	c := cron.New()
 
-    // Schedule backup every 30 minutes
-    _, err := c.AddFunc("*/2 * * * *", func() {
-        err := ub.backupUsers()
-        if err != nil {
-            log.Printf("Error backing up users: %v", err)
-        }
-    })
+	// Schedule backup every 30 minutes
+	_, err := c.AddFunc("*/2 * * * *", func() {
+		err := ub.backupUsers()
+		if err != nil {
+			log.Printf("Error backing up users: %v", err)
+		}
+	})
 
-    if err != nil {
-        log.Printf("Error scheduling backup: %v", err)
-        return
-    }
+	if err != nil {
+		log.Printf("Error scheduling backup: %v", err)
+		return
+	}
 
-    c.Start()
+	c.Start()
 }
 
 func (ub *UserBackup) backupUsers() error {
-    // Query all users
-    rows, err := ub.db.Query("SELECT * FROM Users")
-    if err != nil {
-        return err
-    }
-    defer rows.Close()
+	// Query all users
+	rows, err := ub.db.Query(`SELECT id, uid, name, hostel_id, "bestScore1", "bestScore2", "bestScore3", "bestScore4", "bestScore5"
+         FROM "User"`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
 
-    var users []map[string]interface{}
-    cols, _ := rows.Columns()
+	var users []map[string]interface{}
+	cols, _ := rows.Columns()
 
-    for rows.Next() {
-        // Create a slice of interface{} to store the values
-        values := make([]interface{}, len(cols))
-        valuePtrs := make([]interface{}, len(cols))
-        
-        for i := range values {
-            valuePtrs[i] = &values[i]
-        }
+	for rows.Next() {
+		// Create a slice of interface{} to store the values
+		values := make([]interface{}, len(cols))
+		valuePtrs := make([]interface{}, len(cols))
 
-        if err := rows.Scan(valuePtrs...); err != nil {
-            return err
-        }
+		for i := range values {
+			valuePtrs[i] = &values[i]
+		}
 
-        // Create a map for this row
-        entry := make(map[string]interface{})
-        for i, col := range cols {
-            entry[col] = values[i]
-        }
-        users = append(users, entry)
-    }
+		if err := rows.Scan(valuePtrs...); err != nil {
+			return err
+		}
 
-    // Create backup file name with timestamp
-    backupFileName := fmt.Sprintf("users_backup_%s.json", time.Now().Format("2006_01_02_15_04_05"))
-    backupPath := filepath.Join("backups", backupFileName)
+		// Create a map for this row
+		entry := make(map[string]interface{})
+		for i, col := range cols {
+			entry[col] = values[i]
+		}
+		users = append(users, entry)
+	}
 
-    // Convert to JSON and save to file
-    jsonData, err := json.MarshalIndent(users, "", "    ")
-    if err != nil {
-        return err
-    }
+	// Load IST location
+	ist, err := time.LoadLocation("Asia/Kolkata")
+	if err != nil {
+		return fmt.Errorf("error loading IST timezone: %v", err)
+	}
 
-    if err := os.WriteFile(backupPath, jsonData, 0644); err != nil {
-        return err
-    }
+	// Create backup file name with timestamp
+	backupFileName := fmt.Sprintf("users_backup_%s.json", time.Now().In(ist).Format("2006_01_02_15_04_05"))
+	backupPath := filepath.Join("backups", backupFileName)
 
-    log.Printf("Successfully created backup file: %s", backupPath)
-    return nil
+	// Convert to JSON and save to file
+	jsonData, err := json.MarshalIndent(users, "", "    ")
+	if err != nil {
+		return err
+	}
+
+	if err := os.WriteFile(backupPath, jsonData, 0644); err != nil {
+		return err
+	}
+
+	log.Printf("Successfully created backup file: %s", backupPath)
+	return nil
 }
