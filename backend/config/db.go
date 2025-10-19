@@ -37,3 +37,8 @@ func CloseDB() {
         log.Println("🔌 Database connection closed")
     }
 }
+
+
+func GetDB() *sql.DB {
+    return DB
+}
