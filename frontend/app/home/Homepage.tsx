@@ -1,14 +1,30 @@
-  "use client";
+"use client";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { FaPlay } from "react-icons/fa";
 import HomeLeaderboardSection from "@/components/HomeLeaderboardSection";
 import { getCookie } from "cookies-next";
 import { apiFetch } from "@/lib/api";
+import { checkTokenExpiration } from '@/lib/auth';
+
 export default function HomePage() {
   const [isMobile, setIsMobile] = useState(false);
   const [isGuest, setIsGuest] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+
+
+ useEffect(() => {
+    // Check token expiration immediately
+    checkTokenExpiration();
+
+    // Set up periodic checks
+    const checkInterval = setInterval(() => {
+      checkTokenExpiration();
+    }, 60 * 1000); // Check every minute
+
+    return () => clearInterval(checkInterval);
+  }, []);
 
   // Detect if mobile
   useEffect(() => {
@@ -20,15 +36,15 @@ export default function HomePage() {
 
   // Get guest / logged-in state safely
   useEffect(() => {
-  const guestCookie = getCookie("guestMode"); // "true" | "false" | undefined
-  const token = getCookie("authToken");       // string | undefined
+    const guestCookie = getCookie("guestMode"); // "true" | "false" | undefined
+    const token = getCookie("authToken");       // string | undefined
 
-  // Convert string to boolean properly
-  const guest = guestCookie === "true"; // only true if cookie is "true"
-  setIsGuest(guest);
+    // Convert string to boolean properly
+    const guest = guestCookie === "true"; // only true if cookie is "true"
+    setIsGuest(guest);
 
-  setIsLoggedIn(!!token);
-}, []);
+    setIsLoggedIn(!!token);
+  }, []);
 
 
 
@@ -36,9 +52,9 @@ export default function HomePage() {
   const shouldShowVideo = isMobile || isGuest;
   const shouldShowGame = !isMobile && !isGuest;
 
-  
-  
-  
+
+
+
   useEffect(() => {
     const listener = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return;
@@ -60,7 +76,7 @@ export default function HomePage() {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ gameName, data: score }),
-         credentials: "include",
+        credentials: "include",
       });
     };
 
@@ -82,19 +98,25 @@ export default function HomePage() {
           />
         </div>
       )} */}
+      <br/>
+      <br/>
+      <br/>
 
       {shouldShowGame && (
-        <div className="w-full h-200 flex justify-center items-center overflow-hidden">
+        <div className="w-full h-full flex justify-center items-center">
           <iframe
             src="/gameglitch/Final/index.html"
-            className="w-full max-w-4xl h-full border-none"
+            width={800}      // max supported width
+            height={610}     // max supported height
+            className="border-none"
             title="Topdown Game"
             id="unityIframe"
             allowFullScreen
           />
         </div>
       )}
-  {/* Leaderboard */}
+
+      {/* Leaderboard */}
       <HomeLeaderboardSection />
 
       {/* About Section */}
@@ -103,7 +125,7 @@ export default function HomePage() {
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 lg:mb-12">
             ABOUT US
           </h1>
-          <br/>
+          <br />
           <p className="text-white text-base md:text-lg leading-relaxed">
             Glitch, the epicenter of gaming and game development at IITH. Join
             thrilling tournaments, workshops, and coding sessions.
@@ -127,8 +149,8 @@ export default function HomePage() {
         </div>
       </div>
 
-    
-    <div className="w-full h-24 bg-site" />
+
+      <div className="w-full h-24 bg-site" />
 
     </>
   );

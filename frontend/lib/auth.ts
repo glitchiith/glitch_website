@@ -17,11 +17,13 @@ export const handleLogout = async () => {
     deleteCookie("authToken", cookieOptions);
     deleteCookie("uid", cookieOptions);
     deleteCookie("guestMode", cookieOptions);
-
-    // Clear localStorage
+  // Clear localStorage including expiration timestamps
     localStorage.removeItem("uid");
     localStorage.removeItem("authToken");
     localStorage.removeItem("guestMode");
+    localStorage.removeItem("uid_expires");
+    localStorage.removeItem("authToken_expires");
+    localStorage.removeItem("guestMode_expires");
 
     // Sign out from Firebase
     await auth.signOut();
@@ -33,4 +35,18 @@ export const handleLogout = async () => {
     // Force reload even if there's an error
     window.location.href = "/login";
   }
+};
+
+
+
+export const checkTokenExpiration = () => {
+  const expiresAt = localStorage.getItem('authToken_expires');
+  if (!expiresAt) return false;
+
+  const isExpired = Date.now() > parseInt(expiresAt);
+  if (isExpired) {
+    handleLogout();
+    return true;
+  }
+  return false;
 };

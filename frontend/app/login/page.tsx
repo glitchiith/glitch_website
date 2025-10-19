@@ -33,13 +33,21 @@ const handleGoogleSignIn = async () => {
     const isProd = process.env.NODE_ENV === "production";
 
     // Set all cookies at once
+    const ONE_HOUR = 60 * 60; // seconds
+    const ONE_HOUR_MS = 60 * 60 * 1000; // milliseconds
+
+
+          // Change from 1 hour to 5 minutes
+      const FIVE_MINUTES = 2 * 60; // seconds
+      const FIVE_MINUTES_MS = 2 * 60 * 1000; // milliseconds
+
     const cookieOptions = {
       path: "/",
-      maxAge: 60 * 60 * 24,
+      maxAge: FIVE_MINUTES,
       domain: isProd ? ".glitchiith.co.in" : undefined,
       secure: isProd,
       sameSite: isProd ? ("none" as const) : ("lax" as const),
-      httpOnly: false
+      httpOnly: false,
     };
 
     try {
@@ -47,10 +55,16 @@ const handleGoogleSignIn = async () => {
       setCookie("uid", uid, cookieOptions);
       setCookie("guestMode", "false", cookieOptions);
 
-      // Set localStorage after cookies are confirmed
+      // Store items and expiry timestamps in localStorage (no native expiry)
+      const expiresAt = (Date.now() + FIVE_MINUTES_MS).toString();
+
       localStorage.setItem("uid", uid);
       localStorage.setItem("authToken", token);
       localStorage.setItem("guestMode", "false");
+
+      localStorage.setItem("uid_expires", expiresAt);
+      localStorage.setItem("authToken_expires", expiresAt);
+      localStorage.setItem("guestMode_expires", expiresAt);
 
       // Register user
       await apiFetch("/api/register-user", {
