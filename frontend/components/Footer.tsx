@@ -146,7 +146,7 @@ export default function Footer() {
             <FaLinkedin size={22} />
           </a>
           <a
-            href="https://github.com/glitch-iith"
+            href="https://github.com/glitchiith"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-green-400 transition-colors"
