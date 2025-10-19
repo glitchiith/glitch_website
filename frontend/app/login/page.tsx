@@ -37,13 +37,13 @@ const handleGoogleSignIn = async () => {
     const ONE_HOUR_MS = 60 * 60 * 1000; // milliseconds
 
 
-          // Change from 1 hour to 5 minutes
-      const FIVE_MINUTES = 2 * 60; // seconds
-      const FIVE_MINUTES_MS = 2 * 60 * 1000; // milliseconds
+      //     // Change from 1 hour to 5 minutes
+      // const FIVE_MINUTES = 2 * 60; // seconds
+      // const FIVE_MINUTES_MS = 2 * 60 * 1000; // milliseconds
 
     const cookieOptions = {
       path: "/",
-      maxAge: FIVE_MINUTES,
+      maxAge: ONE_HOUR,
       domain: isProd ? ".glitchiith.co.in" : undefined,
       secure: isProd,
       sameSite: isProd ? ("none" as const) : ("lax" as const),
@@ -56,7 +56,7 @@ const handleGoogleSignIn = async () => {
       setCookie("guestMode", "false", cookieOptions);
 
       // Store items and expiry timestamps in localStorage (no native expiry)
-      const expiresAt = (Date.now() + FIVE_MINUTES_MS).toString();
+      const expiresAt = (Date.now() + ONE_HOUR_MS).toString();
 
       localStorage.setItem("uid", uid);
       localStorage.setItem("authToken", token);
