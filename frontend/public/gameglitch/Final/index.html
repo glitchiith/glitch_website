@@ -57,7 +57,7 @@
         uid = localStorage.getItem("uid");
         if (uid){
         unityInstance.SendMessage("FrontendCaller", "GetUserID", uid);
-          console.log(uid);
+          // console.log(uid);
         }
         else{
           console.log("No UID found in local storage");
@@ -71,7 +71,7 @@
       { type: "score", name, score:score },
       window.location.origin
     );
-        console.log(`${name}\n${score}`);
+        // console.log(`${name}\n${score}`);
       }
 
       var buildUrl = "Build";
