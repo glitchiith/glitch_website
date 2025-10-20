@@ -1,22 +1,22 @@
 <!DOCTYPE html>
 <html lang="en-us">
   <head>
-    <meta charset="utf-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Unity Web Player | GlitchMilan25</title>
-    <link rel="shortcut icon" href="TemplateData/favicon.ico">
-    <link rel="stylesheet" href="TemplateData/style.css">
+    <link rel="shortcut icon" href="TemplateData/favicon.ico" />
+    <link rel="stylesheet" href="TemplateData/style.css" />
   </head>
   <body>
     <div id="unity-container" class="unity-desktop">
-      <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
+      <canvas id="unity-canvas" width="800" height="600" tabindex="-1"></canvas>
       <div id="unity-loading-bar">
         <div id="unity-logo"></div>
         <div id="unity-progress-bar-empty">
           <div id="unity-progress-bar-full"></div>
         </div>
       </div>
-      <div id="unity-warning"> </div>
+      <div id="unity-warning"></div>
       <div id="unity-footer">
         <div id="unity-logo-title-footer"></div>
         <div id="unity-fullscreen-button"></div>
@@ -35,15 +35,18 @@
       function unityShowBanner(msg, type) {
         var warningBanner = document.querySelector("#unity-warning");
         function updateBannerVisibility() {
-          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+          warningBanner.style.display = warningBanner.children.length
+            ? "block"
+            : "none";
         }
-        var div = document.createElement('div');
+        var div = document.createElement("div");
         div.innerHTML = msg;
         warningBanner.appendChild(div);
-        if (type == 'error') div.style = 'background: red; padding: 10px;';
+        if (type == "error") div.style = "background: red; padding: 10px;";
         else {
-          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
-          setTimeout(function() {
+          if (type == "warning")
+            div.style = "background: yellow; padding: 10px;";
+          setTimeout(function () {
             warningBanner.removeChild(div);
             updateBannerVisibility();
           }, 5000);
@@ -51,36 +54,32 @@
         updateBannerVisibility();
       }
 
-
-       function GetUidFromJS() {
-
+      function GetUidFromJS() {
         uid = localStorage.getItem("uid");
-        if (uid){
-        unityInstance.SendMessage("FrontendCaller", "GetUserID", uid);
+        if (uid) {
+          unityInstance.SendMessage("FrontendCaller", "GetUserID", uid);
           // console.log(uid);
-        }
-        else{
+        } else {
           console.log("No UID found in local storage");
         }
       }
 
       function GetScoreFromUnity(name, score) {
-
-  // Forward to parent
-    window.parent.postMessage(
-      { type: "score", name, score:score },
-      window.location.origin
-    );
+        // Forward to parent
+        window.parent.postMessage(
+          { type: "score", name, score: score },
+          window.location.origin
+        );
         // console.log(`${name}\n${score}`);
       }
 
       var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/New folder.loader.js";
+      var loaderUrl = buildUrl + "/Final.loader.js";
       var config = {
         arguments: [],
-        dataUrl: buildUrl + "/New folder.data",
-        frameworkUrl: buildUrl + "/New folder.framework.js",
-        codeUrl: buildUrl + "/New folder.wasm",
+        dataUrl: buildUrl + "/Final.data",
+        frameworkUrl: buildUrl + "/Final.framework.js",
+        codeUrl: buildUrl + "/Final.wasm",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "DefaultCompany",
         productName: "GlitchMilan25",
@@ -107,18 +106,17 @@
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         // Mobile device style: fill the whole browser client area with the game canvas:
 
-        var meta = document.createElement('meta');
-        meta.name = 'viewport';
-        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-        document.getElementsByTagName('head')[0].appendChild(meta);
+        var meta = document.createElement("meta");
+        meta.name = "viewport";
+        meta.content =
+          "width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes";
+        document.getElementsByTagName("head")[0].appendChild(meta);
         document.querySelector("#unity-container").className = "unity-mobile";
         canvas.className = "unity-mobile";
 
         // To lower canvas resolution on mobile devices to gain some
         // performance, uncomment the following line:
         // config.devicePixelRatio = 1;
-
-
       } else {
         // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
         canvas.style.width = "800px";
@@ -126,7 +124,8 @@
       }
 
       document.querySelector("#unity-loading-bar").style.display = "block";
-    var script = document.createElement("script");
+
+      var script = document.createElement("script");
       script.src = loaderUrl;
       script.onload = () => {
         createUnityInstance(canvas, config, (progress) => {
@@ -143,9 +142,7 @@
               });
             };
 
-
       document.body.appendChild(script);
-
     </script>
   </body>
 </html>
