@@ -105,8 +105,12 @@ Server listening on :8000
 
 ## Website
 
-Set `NEXT_PUBLIC_BACKEND_URL=http://localhost:8000` in `frontend/.env`, along
-with the Firebase web configuration, then start/restart Next.js:
+Copy `frontend/.env.example` to `frontend/.env`, fill in the Firebase web
+configuration, and set `NEXT_PUBLIC_BACKEND_URL=http://localhost:8000`. Leave
+`NEXT_PUBLIC_UNITY_GAME_PATH` empty until the new build arrives, then set it to
+the same-origin public path for its `index.html`.
+
+Start or restart Next.js after changing public environment variables:
 
 ```sh
 pnpm dev
