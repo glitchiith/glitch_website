@@ -1,8 +1,10 @@
-# Unity WebGL handoff
+# Unity WebGL integration
 
-The new game is not in this repository yet. The current files under
-`frontend/public/gameglitch/Final/` are the previous event's compiled game and
-are not embedded by the website.
+The test build is under `frontend/public/gameglitch/TestBuild/`. Its compiled
+JavaScript contains the agreed `SubmitScoreToWebsite` bridge. It is Brotli
+compressed and the website supplies the required response headers. The files
+under `frontend/public/gameglitch/Final/` are the previous event's build and are
+not embedded.
 
 Before exporting the new build, the Unity developer needs to provide:
 
@@ -28,10 +30,9 @@ The agreed browser/backend contract is:
 5. The website posts a `website-score-result` message back to the iframe after
    the backend responds. A failed network request can retry the same run and score.
 
-Once the prepared WebGL build arrives, the remaining work is to copy it into a
-new public directory, set `NEXT_PUBLIC_UNITY_GAME_PATH`, add the small iframe-side
-listener that forwards result messages into Unity, confirm compression settings,
-and run the end-to-end submission tests.
+The build's `index.html` contains the iframe-side listener that forwards the
+website result to `ScoreSubmitController`. Any replacement build must retain
+that listener or use a Unity WebGL template containing it.
 
 Unity does not receive the run ID, RSA key, Firebase UID, or Firebase token. The
 backend derives the player UID and hostel from the verified login.

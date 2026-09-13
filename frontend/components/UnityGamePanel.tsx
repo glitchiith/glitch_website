@@ -16,7 +16,9 @@ type Props = {
   onScoreAccepted: (bestScore: number) => void;
 };
 
-const gamePath = process.env.NEXT_PUBLIC_UNITY_GAME_PATH;
+const gamePath =
+  process.env.NEXT_PUBLIC_UNITY_GAME_PATH ||
+  "/gameglitch/TestBuild/index.html";
 const simulatorEnabled =
   process.env.NODE_ENV === "development" &&
   process.env.NEXT_PUBLIC_ENABLE_SCORE_SIMULATOR === "true";
@@ -163,7 +165,7 @@ export default function UnityGamePanel({ bestScore, onScoreAccepted }: Props) {
           ref={iframeRef}
           src={gamePath}
           title="Competition game"
-          className="mx-auto h-[610px] w-full max-w-[800px] border-0"
+          className="mx-auto h-[650px] w-[960px] max-w-full border-0"
           allowFullScreen
         />
       ) : (

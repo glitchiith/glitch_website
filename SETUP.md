@@ -107,8 +107,8 @@ Server listening on :8000
 
 Copy `frontend/.env.example` to `frontend/.env`, fill in the Firebase web
 configuration, and set `NEXT_PUBLIC_BACKEND_URL=http://localhost:8000`. Leave
-`NEXT_PUBLIC_UNITY_GAME_PATH` empty until the new build arrives, then set it to
-the same-origin public path for its `index.html`.
+`NEXT_PUBLIC_UNITY_GAME_PATH=/gameglitch/TestBuild/index.html` unless the build
+directory changes.
 
 For local end-to-end testing only, set
 `NEXT_PUBLIC_ENABLE_SCORE_SIMULATOR=true`. The simulator sends a real score to
@@ -131,11 +131,11 @@ refresh after an in-game submission will be connected with the Unity bridge.
 
 ## Unity handoff
 
-The repository currently contains the previous event's compiled WebGL build.
-The website does not embed it because it is not the new competition game.
-See `UNITY_HANDOFF.md` before asking for the new build. The score integration
-must be added in the Unity source before WebGL export; C# cannot be added to an
-already compiled `.wasm` build.
+The test build is stored at `frontend/public/gameglitch/TestBuild/` and is
+embedded after the website prepares an authenticated run. It uses Brotli, so
+the matching response headers in `frontend/next.config.ts` must remain enabled.
+The previous event's build remains under `frontend/public/gameglitch/Final/`
+and is not embedded. See `UNITY_HANDOFF.md` for the integration contract.
 
 ## Verification
 
