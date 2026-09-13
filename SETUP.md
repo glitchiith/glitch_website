@@ -110,6 +110,10 @@ configuration, and set `NEXT_PUBLIC_BACKEND_URL=http://localhost:8000`. Leave
 `NEXT_PUBLIC_UNITY_GAME_PATH` empty until the new build arrives, then set it to
 the same-origin public path for its `index.html`.
 
+For local end-to-end testing only, set
+`NEXT_PUBLIC_ENABLE_SCORE_SIMULATOR=true`. The simulator sends a real score to
+the configured backend, so use it only with an intended test account/database.
+
 Start or restart Next.js after changing public environment variables:
 
 ```sh

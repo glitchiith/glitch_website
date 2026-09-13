@@ -17,7 +17,9 @@ type Props = {
 };
 
 const gamePath = process.env.NEXT_PUBLIC_UNITY_GAME_PATH;
-const developmentMode = process.env.NODE_ENV === "development";
+const simulatorEnabled =
+  process.env.NODE_ENV === "development" &&
+  process.env.NEXT_PUBLIC_ENABLE_SCORE_SIMULATOR === "true";
 
 function messageFrom(error: unknown, fallback: string) {
   return error instanceof Error ? error.message : fallback;
@@ -63,7 +65,7 @@ export default function UnityGamePanel({ bestScore, onScoreAccepted }: Props) {
   }, []);
 
   useEffect(() => {
-    if (gamePath || developmentMode) void prepareRun();
+    if (gamePath || simulatorEnabled) void prepareRun();
   }, [prepareRun]);
 
   const sendResultToGame = useCallback(
@@ -194,7 +196,7 @@ export default function UnityGamePanel({ bestScore, onScoreAccepted }: Props) {
         </div>
       )}
 
-      {developmentMode && (
+      {simulatorEnabled && (
         <div className="mx-auto mt-6 max-w-sm rounded-lg border border-dashed border-gray-600 p-4 text-left">
           <p className="mb-3 text-sm text-gray-300">
             Development-only Unity submission simulator
