@@ -11,47 +11,54 @@ type Profile = {
   hostel_id: number | null;
   best_score: number | null;
 };
+
+function errorMessage(error: unknown, fallback: string) {
+  return error instanceof Error ? error.message : fallback;
+}
+
 export default function CompetitionEntry() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [hostels, setHostels] = useState<Record<string, string>>({});
   const [selected, setSelected] = useState("");
-  const [confirmed, setConfirmed] = useState(false);
+  const [hostelConfirmed, setHostelConfirmed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
   const [error, setError] = useState("");
-  const [retry, setRetry] = useState(0);
-  const load = useCallback(async () => {
+
+  const loadCompetitionData = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
-      const [p, h] = await Promise.all([
+      const [loadedProfile, hostelResponse] = await Promise.all([
         apiJSON<Profile>("/api/register-user", { method: "POST" }, true),
         apiJSON<{ hostels: Record<string, string> }>("/api/hostels"),
       ]);
-      setProfile(p);
-      setHostels(h.hostels);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not load your profile.");
+      setProfile(loadedProfile);
+      setHostels(hostelResponse.hostels);
+    } catch (error) {
+      setError(errorMessage(error, "Could not load your profile."));
     } finally {
       setLoading(false);
     }
   }, []);
+
   useEffect(
     () =>
       onAuthStateChanged(auth, (user) => {
         setSignedIn(!!user);
-        if (user) void load();
-        else {
+        if (user) {
+          void loadCompetitionData();
+        } else {
           setProfile(null);
           setLoading(false);
         }
       }),
-    [load, retry],
+    [loadCompetitionData],
   );
 
   async function saveHostel() {
-    if (!selected || !confirmed) return;
+    if (!selected || !hostelConfirmed) return;
     setSaving(true);
     setError("");
     try {
@@ -65,19 +72,21 @@ export default function CompetitionEntry() {
           true,
         ),
       );
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not save hostel.");
+    } catch (error) {
+      setError(errorMessage(error, "Could not save hostel."));
     } finally {
       setSaving(false);
     }
   }
-  if (loading)
+
+  if (loading) {
     return (
       <p className="p-8 text-center" role="status">
         Loading your player profile…
       </p>
     );
-  if (!signedIn)
+  }
+  if (!signedIn) {
     return (
       <div className="p-8 text-center">
         <Link href="/login" className="text-green-400 underline">
@@ -85,7 +94,8 @@ export default function CompetitionEntry() {
         </Link>
       </div>
     );
-  if (!profile || !profile.hostel_id)
+  }
+  if (!profile || profile.hostel_id === null) {
     return (
       <section className="mx-auto my-8 max-w-lg rounded-xl border border-green-800 bg-gray-950 p-6 text-white">
         <h2 className="text-2xl font-bold">Choose your hostel</h2>
@@ -103,7 +113,7 @@ export default function CompetitionEntry() {
               value={selected}
               onChange={(e) => {
                 setSelected(e.target.value);
-                setConfirmed(false);
+                setHostelConfirmed(false);
               }}
               className="w-full rounded bg-gray-800 p-3"
             >
@@ -117,15 +127,16 @@ export default function CompetitionEntry() {
             <label className="my-4 flex items-start gap-3">
               <input
                 type="checkbox"
-                checked={confirmed}
-                onChange={(e) => setConfirmed(e.target.checked)}
+                checked={hostelConfirmed}
+                onChange={(e) => setHostelConfirmed(e.target.checked)}
                 className="mt-1"
               />
               I confirm this is my hostel and understand I cannot change it.
             </label>
             <button
-              onClick={saveHostel}
-              disabled={!selected || !confirmed || saving}
+              type="button"
+              onClick={() => void saveHostel()}
+              disabled={!selected || !hostelConfirmed || saving}
               className="rounded bg-green-600 px-5 py-3 font-bold disabled:opacity-40"
             >
               {saving ? "Saving…" : "Confirm hostel"}
@@ -139,14 +150,17 @@ export default function CompetitionEntry() {
         )}
         {!profile && (
           <button
+            type="button"
             className="mt-4 underline"
-            onClick={() => setRetry((n) => n + 1)}
+            onClick={() => void loadCompetitionData()}
           >
             Retry loading profile
           </button>
         )}
       </section>
     );
+  }
+
   return (
     <section className="mx-auto max-w-5xl px-4 py-8 text-white">
       <div className="mb-4 flex flex-wrap justify-between gap-2">

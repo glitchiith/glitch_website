@@ -1,11 +1,13 @@
 package controller
 
 import (
+	"net/http"
+	"sort"
+	"time"
+
 	"github.com/Panshul-Jindal/glitch_website/backend/config"
 	"github.com/Panshul-Jindal/glitch_website/backend/internal/schema"
 	"github.com/gin-gonic/gin"
-	"sort"
-	"time"
 )
 
 type RankedPlayer struct {
@@ -18,40 +20,57 @@ type RankedPlayer struct {
 }
 
 func GetPlayerLeaderboard(c *gin.Context) {
-	rows, err := config.DB.QueryContext(c.Request.Context(), `SELECT name,hostel_id,best_score,best_at FROM "CompetitionPlayer"
- WHERE best_score IS NOT NULL AND hostel_id IS NOT NULL ORDER BY best_score DESC,best_at ASC,uid ASC LIMIT 20`)
+	rows, err := config.DB.QueryContext(c.Request.Context(), `
+		SELECT name, hostel_id, best_score, best_at
+		FROM "CompetitionPlayer"
+		WHERE best_score IS NOT NULL AND hostel_id IS NOT NULL
+		ORDER BY best_score DESC, best_at ASC, uid ASC
+		LIMIT 20`)
 	if err != nil {
-		internal(c, err)
+		respondInternalError(c, err)
 		return
 	}
 	defer rows.Close()
+
 	players := []RankedPlayer{}
 	for rows.Next() {
-		var p RankedPlayer
-		if err = rows.Scan(&p.Name, &p.HostelID, &p.Score, &p.AchievedAt); err != nil {
-			internal(c, err)
+		var player RankedPlayer
+		if err := rows.Scan(&player.Name, &player.HostelID, &player.Score, &player.AchievedAt); err != nil {
+			respondInternalError(c, err)
 			return
 		}
-		p.Rank = len(players) + 1
-		p.HostelName = schema.HOSTELS[p.HostelID]
-		players = append(players, p)
+		player.Rank = len(players) + 1
+		player.HostelName = schema.HOSTELS[player.HostelID]
+		players = append(players, player)
 	}
-	if err = rows.Err(); err != nil {
-		internal(c, err)
+	if err := rows.Err(); err != nil {
+		respondInternalError(c, err)
 		return
 	}
-	c.JSON(200, gin.H{"players": players})
+	c.JSON(http.StatusOK, gin.H{"players": players})
 }
+
 func GetHostelLeaderboard(c *gin.Context) {
-	rows, err := config.DB.QueryContext(c.Request.Context(), `WITH ranked AS (
- SELECT hostel_id,best_score,row_number() OVER(PARTITION BY hostel_id ORDER BY best_score DESC,best_at,uid) AS position
- FROM "CompetitionPlayer" WHERE hostel_id IS NOT NULL AND best_score IS NOT NULL)
- SELECT hostel_id,sum(best_score),count(*) FROM ranked WHERE position<=50 GROUP BY hostel_id`)
+	rows, err := config.DB.QueryContext(c.Request.Context(), `
+		WITH ranked AS (
+			SELECT hostel_id, best_score,
+				row_number() OVER (
+					PARTITION BY hostel_id
+					ORDER BY best_score DESC, best_at, uid
+				) AS position
+			FROM "CompetitionPlayer"
+			WHERE hostel_id IS NOT NULL AND best_score IS NOT NULL
+		)
+		SELECT hostel_id, sum(best_score), count(*)
+		FROM ranked
+		WHERE position <= 50
+		GROUP BY hostel_id`)
 	if err != nil {
-		internal(c, err)
+		respondInternalError(c, err)
 		return
 	}
 	defer rows.Close()
+
 	scores := map[int]schema.HostelScore{}
 	for id, name := range schema.HOSTELS {
 		scores[id] = schema.HostelScore{HostelID: id, HostelName: name}
@@ -59,25 +78,26 @@ func GetHostelLeaderboard(c *gin.Context) {
 	for rows.Next() {
 		var id, count int
 		var total float64
-		if err = rows.Scan(&id, &total, &count); err != nil {
-			internal(c, err)
+		if err := rows.Scan(&id, &total, &count); err != nil {
+			respondInternalError(c, err)
 			return
 		}
-		h, ok := scores[id]
+		hostel, ok := scores[id]
 		if !ok {
 			continue
 		}
-		h.TotalScore = total
-		h.ParticipantCount = count
-		scores[id] = h
+		hostel.TotalScore = total
+		hostel.ParticipantCount = count
+		scores[id] = hostel
 	}
-	if err = rows.Err(); err != nil {
-		internal(c, err)
+	if err := rows.Err(); err != nil {
+		respondInternalError(c, err)
 		return
 	}
+
 	result := make([]schema.HostelScore, 0, len(scores))
-	for _, h := range scores {
-		result = append(result, h)
+	for _, hostel := range scores {
+		result = append(result, hostel)
 	}
 	sort.Slice(result, func(i, j int) bool {
 		if result[i].TotalScore == result[j].TotalScore {
@@ -94,5 +114,5 @@ func GetHostelLeaderboard(c *gin.Context) {
 			result[i].ScorePercentage = 100 * result[i].TotalScore / result[0].TotalScore
 		}
 	}
-	c.JSON(200, gin.H{"leaderboard": result, "top_k": 50})
+	c.JSON(http.StatusOK, gin.H{"leaderboard": result, "top_k": 50})
 }
