@@ -47,8 +47,7 @@ func (ub *UserBackup) StartBackupCron() {
 
 func (ub *UserBackup) backupUsers() error {
 	// Query all users
-	rows, err := ub.db.Query(`SELECT id, uid, name, hostel_id, "bestScore1", "bestScore2", "bestScore3", "bestScore4", "bestScore5"
-         FROM "User"`)
+	rows, err := ub.db.Query(`SELECT uid, name, hostel_id, best_score, best_at FROM "CompetitionPlayer"`)
 	if err != nil {
 		return err
 	}
@@ -78,6 +77,9 @@ func (ub *UserBackup) backupUsers() error {
 		users = append(users, entry)
 	}
 
+	if err := rows.Err(); err != nil {
+		return err
+	}
 	// Load IST location
 	ist, err := time.LoadLocation("Asia/Kolkata")
 	if err != nil {
@@ -94,7 +96,7 @@ func (ub *UserBackup) backupUsers() error {
 		return err
 	}
 
-	if err := os.WriteFile(backupPath, jsonData, 0644); err != nil {
+	if err := os.WriteFile(backupPath, jsonData, 0600); err != nil {
 		return err
 	}
 

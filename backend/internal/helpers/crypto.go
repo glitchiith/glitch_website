@@ -7,39 +7,46 @@ import (
 	"encoding/base64"
 	"encoding/pem"
 	"fmt"
-	"log"
 )
 
-// call TryDecrypt(encryptedData, privateKeyPEM)
-func DecryptRSA(encryptedData, privateKeyPEM string) (string, error) {
-
-	// Load private key
-	privBlock, _ := pem.Decode([]byte(privateKeyPEM))
-	if privBlock == nil {
-		log.Fatal("Failed to parse private key PEM")
+func ParsePrivateKey(value string) (*rsa.PrivateKey, error) {
+	block, _ := pem.Decode([]byte(value))
+	if block == nil {
+		return nil, fmt.Errorf("missing RSA private key PEM")
 	}
+	var key *rsa.PrivateKey
+	if block.Type == "RSA PRIVATE KEY" {
+		parsed, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+		if err != nil {
+			return nil, err
+		}
+		key = parsed
+	} else {
+		parsed, err := x509.ParsePKCS8PrivateKey(block.Bytes)
+		if err != nil {
+			return nil, err
+		}
+		var ok bool
+		key, ok = parsed.(*rsa.PrivateKey)
+		if !ok {
+			return nil, fmt.Errorf("key is not RSA")
+		}
+	}
+	if key.N.BitLen() < 2048 {
+		return nil, fmt.Errorf("RSA key must be at least 2048 bits")
+	}
+	return key, key.Validate()
+}
 
-	// PKCS#8 parsing
-	privAny, err := x509.ParsePKCS8PrivateKey(privBlock.Bytes)
+func DecryptRSA(data, privatePEM string) (string, error) {
+	key, err := ParsePrivateKey(privatePEM)
 	if err != nil {
-		log.Fatalf("Failed to parse PKCS#8 private key: %v", err)
+		return "", err
 	}
-
-	// Type assert to *rsa.PrivateKey
-	privKey, ok := privAny.(*rsa.PrivateKey)
-	if !ok {
-		log.Fatal("Not an RSA private key")
-	}
-
-	ciphertext, err := base64.StdEncoding.DecodeString(encryptedData)
+	ciphertext, err := base64.StdEncoding.DecodeString(data)
 	if err != nil {
-		return "", fmt.Errorf("base64 decode: %v", err)
+		return "", err
 	}
-
-	plaintext, err := rsa.DecryptPKCS1v15(rand.Reader, privKey, ciphertext)
-	if err != nil {
-		return "", fmt.Errorf("decryption failed: %v", err)
-	}
-
-	return string(plaintext), nil
+	plaintext, err := rsa.DecryptPKCS1v15(rand.Reader, key, ciphertext)
+	return string(plaintext), err
 }

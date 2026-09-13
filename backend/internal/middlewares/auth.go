@@ -28,17 +28,16 @@ func FirebaseAuth() gin.HandlerFunc {
 
 		// Step 3: Handle guest users
 		if idToken == "" {
-			guestMode, _ := c.Cookie("guestMode")
-			if guestMode == "true" {
-				c.Next()
-				return
-			}
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Missing Firebase token"})
 			c.Abort()
 			return
 		}
 
 		// Step 4: Verify Firebase token
+		if config.FirebaseApp == nil {
+			c.AbortWithStatusJSON(http.StatusServiceUnavailable, gin.H{"error": "Authentication is not configured"})
+			return
+		}
 		client, err := config.FirebaseApp.Auth(context.Background())
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get Firebase Auth client"})
@@ -55,6 +54,7 @@ func FirebaseAuth() gin.HandlerFunc {
 
 		// Step 5: Attach UID to context for downstream handlers
 		c.Set("uid", token.UID)
+		c.Set("claims", token.Claims)
 		c.Next()
 	}
 }

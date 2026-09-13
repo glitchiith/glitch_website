@@ -1,0 +1,169 @@
+"use client";
+import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { apiJSON } from "@/lib/api";
+
+type Profile = {
+  uid: string;
+  name: string;
+  hostel_id: number | null;
+  best_score: number | null;
+};
+export default function CompetitionEntry() {
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [hostels, setHostels] = useState<Record<string, string>>({});
+  const [selected, setSelected] = useState("");
+  const [confirmed, setConfirmed] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
+  const [error, setError] = useState("");
+  const [retry, setRetry] = useState(0);
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const [p, h] = await Promise.all([
+        apiJSON<Profile>("/api/register-user", { method: "POST" }, true),
+        apiJSON<{ hostels: Record<string, string> }>("/api/hostels"),
+      ]);
+      setProfile(p);
+      setHostels(h.hostels);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not load your profile.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+  useEffect(
+    () =>
+      onAuthStateChanged(auth, (user) => {
+        setSignedIn(!!user);
+        if (user) void load();
+        else {
+          setProfile(null);
+          setLoading(false);
+        }
+      }),
+    [load, retry],
+  );
+
+  async function saveHostel() {
+    if (!selected || !confirmed) return;
+    setSaving(true);
+    setError("");
+    try {
+      setProfile(
+        await apiJSON<Profile>(
+          "/api/profile/hostel",
+          {
+            method: "PUT",
+            body: JSON.stringify({ hostel_id: Number(selected) }),
+          },
+          true,
+        ),
+      );
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not save hostel.");
+    } finally {
+      setSaving(false);
+    }
+  }
+  if (loading)
+    return (
+      <p className="p-8 text-center" role="status">
+        Loading your player profile…
+      </p>
+    );
+  if (!signedIn)
+    return (
+      <div className="p-8 text-center">
+        <Link href="/login" className="text-green-400 underline">
+          Sign in to play and submit scores
+        </Link>
+      </div>
+    );
+  if (!profile || !profile.hostel_id)
+    return (
+      <section className="mx-auto my-8 max-w-lg rounded-xl border border-green-800 bg-gray-950 p-6 text-white">
+        <h2 className="text-2xl font-bold">Choose your hostel</h2>
+        <p className="my-3 text-gray-300">
+          Your choice is permanent for this competition. Check it carefully
+          before confirming.
+        </p>
+        {profile && (
+          <>
+            <label htmlFor="hostel" className="block mb-2">
+              Hostel
+            </label>
+            <select
+              id="hostel"
+              value={selected}
+              onChange={(e) => {
+                setSelected(e.target.value);
+                setConfirmed(false);
+              }}
+              className="w-full rounded bg-gray-800 p-3"
+            >
+              <option value="">Select your hostel</option>
+              {Object.entries(hostels).map(([id, name]) => (
+                <option key={id} value={id}>
+                  {name}
+                </option>
+              ))}
+            </select>
+            <label className="my-4 flex items-start gap-3">
+              <input
+                type="checkbox"
+                checked={confirmed}
+                onChange={(e) => setConfirmed(e.target.checked)}
+                className="mt-1"
+              />
+              I confirm this is my hostel and understand I cannot change it.
+            </label>
+            <button
+              onClick={saveHostel}
+              disabled={!selected || !confirmed || saving}
+              className="rounded bg-green-600 px-5 py-3 font-bold disabled:opacity-40"
+            >
+              {saving ? "Saving…" : "Confirm hostel"}
+            </button>
+          </>
+        )}
+        {error && (
+          <p role="alert" className="mt-4 text-red-300">
+            {error}
+          </p>
+        )}
+        {!profile && (
+          <button
+            className="mt-4 underline"
+            onClick={() => setRetry((n) => n + 1)}
+          >
+            Retry loading profile
+          </button>
+        )}
+      </section>
+    );
+  return (
+    <section className="mx-auto max-w-5xl px-4 py-8 text-white">
+      <div className="mb-4 flex flex-wrap justify-between gap-2">
+        <p>
+          {profile.name} · {hostels[String(profile.hostel_id)]}
+        </p>
+        <Link href="/leaderboard" className="text-green-400 underline">
+          View leaderboards
+        </Link>
+      </div>
+      <div className="rounded-xl border border-green-900 bg-gray-950 px-6 py-20 text-center">
+        <h2 className="text-3xl font-bold text-green-400">Game coming soon</h2>
+        <p className="mx-auto mt-3 max-w-xl text-gray-300">
+          The new Unity WebGL build has not been added yet. Your account and
+          hostel are ready for the competition.
+        </p>
+      </div>
+    </section>
+  );
+}

@@ -5,3 +5,16 @@
 /home/panshul/Desktop/Documents/Lambda/glitchwebsite/frontend/.vscode
 /home/panshul/Desktop/Documents/Lambda/glitchwebsite/frontend/.idea
 /home/panshul/Desktop/Documents/Lambda/glitchwebsite/frontend/dist
+/node_modules/
+**/node_modules/
+**/.next/
+**/.env
+**/.env.local
+**/.env.*.local
+**/backups/
+**/*.pem
+**/*service-account*.json
+**/*.tsbuildinfo
+/backend/backend
+frontend/.env
+backend/.env

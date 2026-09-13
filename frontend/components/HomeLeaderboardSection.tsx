@@ -6,7 +6,7 @@ import { toast, Toaster } from "sonner";
 import { Trophy, Crown, Medal, ArrowRight, Gamepad2 } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { apiFetch } from "@/lib/api";
+import { apiJSON } from "@/lib/api";
 // Register GSAP plugin
 if (typeof window !== "undefined") {
     gsap.registerPlugin(ScrollTrigger);
@@ -49,9 +49,7 @@ const HomeLeaderboardSection = () => {
         if (typeof window === "undefined") return;
         const fetchLeaderboard = async () => {
             try {
-                const response = await apiFetch("/api/leaderboard/hostels");
-                const data = await response.json();
-                console.log("Leaderboard data:", data.leaderboard);
+                const data = await apiJSON<{ leaderboard: HostelLeaderboard[] }>("/api/leaderboard/hostels");
                 if (data.leaderboard) {
                     // Show top 3 only
                     const topHostels = data.leaderboard.slice(0, 3);
@@ -66,6 +64,16 @@ const HomeLeaderboardSection = () => {
         };
 
         fetchLeaderboard();
+        const refresh = () => { void fetchLeaderboard(); };
+        const storage = (event: StorageEvent) => { if (event.key === "scores-updated") refresh(); };
+        window.addEventListener("scores-updated", refresh);
+        window.addEventListener("storage", storage);
+        window.addEventListener("focus", refresh);
+        return () => {
+            window.removeEventListener("scores-updated", refresh);
+            window.removeEventListener("storage", storage);
+            window.removeEventListener("focus", refresh);
+        };
     }, []);
 
     // GSAP Animations
@@ -193,7 +201,7 @@ const HomeLeaderboardSection = () => {
                     <div ref={barsRef} className="space-y-3 mb-4">
                         {leaderboardData.map((hostel) => (
                             <div
-                                key={hostel.rank}
+                                key={hostel.hostel_name}
                                 className="leaderboard-entry bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-800 hover:border-primary transition-all duration-300 relative overflow-hidden group"
                             >
                                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/0 via-cyan-500/5 to-cyan-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>

@@ -1,126 +1,69 @@
 "use client";
 import { setCookie } from "cookies-next";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { apiFetch } from "@/lib/api";
+import { apiJSON } from "@/lib/api";
 
 export default function LoginPage() {
   const [error, setError] = useState("");
-  const router = useRouter();
-const handleGoogleSignIn = async () => {
-  try {
-    const provider = new GoogleAuthProvider();
-    let result;
+  const [busy, setBusy] = useState(false);
+  async function login() {
+    setBusy(true);
+    setError("");
     try {
-      result = await signInWithPopup(auth, provider);
-    } catch(err) {
-      setError("Popup closed before completing sign-in.");
-      return;
-    }
-    
-    const user = result.user;
-
-    if (!user.email || !user.email.endsWith("@iith.ac.in")) {
-      setError("Please use your IIT Hyderabad account to log in.");
-      await auth.signOut();
-      return;
-    }
-
-    const uid = user.uid;
-    const token = await user.getIdToken();
-    const isProd = process.env.NODE_ENV === "production";
-
-    // Set all cookies at once
-    const ONE_HOUR = 60 * 60; // seconds
-    const ONE_HOUR_MS = 60 * 60 * 1000; // milliseconds
-
-
-      //     // Change from 1 hour to 5 minutes
-      // const FIVE_MINUTES = 2 * 60; // seconds
-      // const FIVE_MINUTES_MS = 2 * 60 * 1000; // milliseconds
-
-    const cookieOptions = {
-      path: "/",
-      maxAge: ONE_HOUR,
-      domain: isProd ? ".glitchiith.co.in" : undefined,
-      secure: isProd,
-      sameSite: isProd ? ("none" as const) : ("lax" as const),
-      httpOnly: false,
-    };
-
-    try {
-      setCookie("authToken", token, cookieOptions);
-      setCookie("uid", uid, cookieOptions);
-      setCookie("guestMode", "false", cookieOptions);
-
-      // Store items and expiry timestamps in localStorage (no native expiry)
-      const expiresAt = (Date.now() + ONE_HOUR_MS).toString();
-
-      localStorage.setItem("uid", uid);
-      localStorage.setItem("authToken", token);
-      localStorage.setItem("guestMode", "false");
-
-      localStorage.setItem("uid_expires", expiresAt);
-      localStorage.setItem("authToken_expires", expiresAt);
-      localStorage.setItem("guestMode_expires", expiresAt);
-
-      // Register user
-      await apiFetch("/api/register-user", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          email: user.email,
-          name: user.displayName,
-        }),
+      const { user } = await signInWithPopup(auth, new GoogleAuthProvider());
+      if (
+        !user.email?.toLowerCase().endsWith("@iith.ac.in") ||
+        !user.emailVerified
+      ) {
+        await auth.signOut();
+        throw new Error(
+          "Please use your verified IIT Hyderabad Google account.",
+        );
+      }
+      await apiJSON("/api/register-user", { method: "POST" }, true);
+      setCookie("guestMode", "false", {
+        path: "/",
+        maxAge: 86400,
+        sameSite: "lax",
       });
-
-      // Trigger storage event and force reload
-      window.dispatchEvent(new Event("storage"));
       window.location.href = "/";
-    } catch (err) {
-      setError("Failed to set authentication data. Please try again.");
-      console.error("Cookie/Storage Error:", err);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Sign-in failed.");
+    } finally {
+      setBusy(false);
     }
-
-  } catch (err: any) {
-    setError(err.message);
   }
-};
-
-
-  const handleGuestMode = () => {
-    setCookie("guestMode", "true", { path: "/", maxAge: 60 * 60 * 24 });
-    localStorage.setItem("guestMode", "true");
-    router.push("/");
-  };
-
   return (
-    <div className="flex justify-center items-center min-h-screen bg-black">
-      <div className="p-8 rounded-2xl w-[420px] border border-green-500 shadow-[0_0_15px_#00ff00,0_0_30px_#00ff00]">
-        <h2 className="text-3xl font-bold mb-6 text-center text-white">Login</h2>
-
-        <div className="space-y-4 mt-8">
-          <button
-            onClick={handleGoogleSignIn}
-            className="w-full py-2 rounded-md bg-green-600 text-black font-bold hover:bg-green-500 transition"
-          >
-            Sign in with Google
-          </button>
-
-          <button
-            onClick={handleGuestMode}
-            className="w-full py-2 rounded-md bg-transparent text-green-400 border border-green-400 font-bold hover:bg-green-700/20 transition"
-          >
-            Continue without login
-          </button>
-        </div>
-
-        {error && <p className="text-red-400 text-sm mt-3">{error}</p>}
+    <div className="flex min-h-[70vh] items-center justify-center p-6">
+      <div className="w-full max-w-md rounded-2xl border border-green-700 bg-gray-950 p-8 text-white">
+        <h1 className="text-3xl font-bold">Welcome to Glitch</h1>
+        <p className="my-4 text-gray-300">
+          Sign in to play and put your personal best on the leaderboard.
+        </p>
+        <button
+          disabled={busy}
+          onClick={login}
+          className="w-full rounded bg-green-600 p-3 font-bold disabled:opacity-50"
+        >
+          {busy ? "Signing in…" : "Sign in with Google"}
+        </button>
+        <button
+          disabled={busy}
+          onClick={() => {
+            setCookie("guestMode", "true", { path: "/", maxAge: 86400 });
+            window.location.href = "/leaderboard";
+          }}
+          className="mt-3 w-full rounded border border-green-700 p-3"
+        >
+          View leaderboards as a guest
+        </button>
+        {error && (
+          <p role="alert" className="mt-4 text-red-300">
+            {error}
+          </p>
+        )}
       </div>
     </div>
   );
