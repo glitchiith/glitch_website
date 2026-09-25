@@ -4,7 +4,6 @@ import Link from "next/link";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { apiJSON } from "@/lib/api";
-import UnityGamePanel from "@/components/UnityGamePanel";
 
 type Profile = {
   uid: string;
@@ -172,14 +171,12 @@ export default function CompetitionEntry() {
           View leaderboards
         </Link>
       </div>
-      <UnityGamePanel
-        bestScore={profile.best_score}
-        onScoreAccepted={(bestScore) =>
-          setProfile((current) =>
-            current ? { ...current, best_score: bestScore } : current,
-          )
-        }
-      />
+      <div className="rounded-xl border border-green-900 bg-gray-950 px-6 py-20 text-center">
+        <h2 className="text-3xl font-bold text-green-400">Game coming soon</h2>
+        <p className="mx-auto mt-3 max-w-xl text-gray-300">
+          We&apos;re getting the game ready. Check back soon.
+        </p>
+      </div>
     </section>
   );
 }
