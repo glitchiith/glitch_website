@@ -144,7 +144,7 @@ export default function LeaderboardPage() {
         ) : (
           <table className="w-full text-left">
             <caption className="sr-only">
-              Hostel rankings using each hostel's top 50 personal bests
+              Hostel team rankings using each team&apos;s top 50 personal bests
             </caption>
             <thead className="bg-green-950">
               <tr>
@@ -175,7 +175,7 @@ export default function LeaderboardPage() {
       <p className="mt-5 text-sm text-gray-400">
         {tab === "players"
           ? "Each player appears once. Equal scores are ordered by when the server first accepted that best score. There are no hostel quotas."
-          : "Each hostel total is the sum of its top 50 players’ personal bests, or everyone if fewer than 50 have submitted. Equal totals share a rank."}
+          : "Each participating hostel team totals its top 50 players’ personal bests, or everyone if fewer than 50 have submitted. Paired hostels share the same 50-player cap. Equal totals share a rank."}
       </p>
       <button className="mt-4 text-green-400 underline" onClick={refresh}>
         Refresh scores

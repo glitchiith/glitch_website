@@ -13,6 +13,11 @@ import (
 )
 
 func StartRun(c *gin.Context) {
+	if os.Getenv("GAME_ENABLED") != "true" {
+		respondError(c, http.StatusServiceUnavailable, "The game is temporarily unavailable.")
+		return
+	}
+
 	// A run is issued only when score encryption is configured correctly.
 	key, err := helpers.ParsePrivateKey(os.Getenv("PRIVATE_KEY"))
 	if err != nil {

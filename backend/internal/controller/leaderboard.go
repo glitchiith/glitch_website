@@ -52,19 +52,33 @@ func GetPlayerLeaderboard(c *gin.Context) {
 
 func GetHostelLeaderboard(c *gin.Context) {
 	rows, err := config.DB.QueryContext(c.Request.Context(), `
-		WITH ranked AS (
-			SELECT hostel_id, best_score,
-				row_number() OVER (
-					PARTITION BY hostel_id
-					ORDER BY best_score DESC, best_at, uid
-				) AS position
+		WITH grouped AS (
+			SELECT
+				CASE
+					WHEN hostel_id IN (10, 11) THEN 11
+					WHEN hostel_id IN (7, 12) THEN 12
+					WHEN hostel_id IN (9, 19) THEN 19
+					WHEN hostel_id IN (8, 22) THEN 22
+					ELSE hostel_id
+				END AS leaderboard_hostel_id,
+				best_score,
+				best_at,
+				uid
 			FROM "CompetitionPlayer"
 			WHERE hostel_id IS NOT NULL AND best_score IS NOT NULL
+		),
+		ranked AS (
+			SELECT leaderboard_hostel_id, best_score,
+				row_number() OVER (
+					PARTITION BY leaderboard_hostel_id
+					ORDER BY best_score DESC, best_at, uid
+				) AS position
+			FROM grouped
 		)
-		SELECT hostel_id, sum(best_score), count(*)
+		SELECT leaderboard_hostel_id, sum(best_score), count(*)
 		FROM ranked
 		WHERE position <= 50
-		GROUP BY hostel_id`)
+		GROUP BY leaderboard_hostel_id`)
 	if err != nil {
 		respondInternalError(c, err)
 		return
@@ -72,7 +86,7 @@ func GetHostelLeaderboard(c *gin.Context) {
 	defer rows.Close()
 
 	scores := map[int]schema.HostelScore{}
-	for id, name := range schema.HOSTELS {
+	for id, name := range schema.LEADERBOARD_HOSTELS {
 		scores[id] = schema.HostelScore{HostelID: id, HostelName: name}
 	}
 	for rows.Next() {

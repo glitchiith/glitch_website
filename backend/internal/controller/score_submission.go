@@ -39,6 +39,11 @@ type storedRun struct {
 }
 
 func SubmitScore(c *gin.Context) {
+	if os.Getenv("GAME_ENABLED") != "true" {
+		respondError(c, http.StatusServiceUnavailable, "The game is temporarily unavailable.")
+		return
+	}
+
 	tx, bestScore, err := beginPlayerTransaction(c)
 	if err != nil {
 		respondTransactionError(c, err)

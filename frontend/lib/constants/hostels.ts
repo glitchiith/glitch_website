@@ -7,7 +7,7 @@ export const HOSTELS: Record<number, string> = {
   5: "SAROJINI NAIDU",
   6: "KALPANA CHAWLA",
   7: "CHARAKA",
-  8: "SUSRUTA",
+  8: "SUSRUTHA",
   9: "KAUTILYA",
   10: "VYASA",
   11: "BRAHMAGUPTA",
@@ -21,6 +21,7 @@ export const HOSTELS: Record<number, string> = {
   19: "BHABHA",
   20: "SARABHAI",
   21: "VISWESWARAYA",
+  22: "BHASKARA",
 };
 
 // Optional helper list

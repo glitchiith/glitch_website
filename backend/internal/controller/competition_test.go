@@ -73,7 +73,12 @@ func TestCompetitionDatabase(t *testing.T) {
 	}
 	defer db.Close()
 	config.DB = db
-	migrations := []string{"20251016163359_init_postgres_hostels", "20251016164207_fix_removed_opposite_relations", "20260912000100_single_game"}
+	migrations := []string{
+		"20251016163359_init_postgres_hostels",
+		"20251016164207_fix_removed_opposite_relations",
+		"20260912000100_single_game",
+		"20260925000100_grouped_hostels",
+	}
 	for _, name := range migrations {
 		data, err := os.ReadFile(filepath.Join("../../../frontend/prisma/migrations", name, "migration.sql"))
 		if err != nil {
@@ -97,6 +102,7 @@ func TestCompetitionDatabase(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Setenv("PRIVATE_KEY", string(pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: private})))
+	t.Setenv("GAME_ENABLED", "true")
 	t.Setenv("SUBMISSIONS_PER_MINUTE", "1000")
 	t.Setenv("RUN_STARTS_PER_MINUTE", "1000")
 	gin.SetMode(gin.TestMode)
@@ -220,6 +226,31 @@ func TestCompetitionDatabase(t *testing.T) {
 	}
 	if !found {
 		t.Fatal("hostel missing")
+	}
+	// Paired hostels compete as one unit and share a single top-50 cap.
+	_, err = db.Exec(`INSERT INTO "CompetitionPlayer"(uid,name,hostel_id,best_score,best_at)
+ SELECT 'pair-'||i,'Pair Player '||i,
+ CASE WHEN i % 2 = 0 THEN 10 ELSE 11 END,
+ i,now() FROM generate_series(1,51) AS i`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	w = request("", GetHostelLeaderboard, "")
+	expect(w, 200)
+	if err = json.Unmarshal(w.Body.Bytes(), &hostels); err != nil {
+		t.Fatal(err)
+	}
+	found = false
+	for _, h := range hostels.Leaderboard {
+		if h.HostelID == 11 {
+			found = true
+			if h.Total != 1325 || h.Count != 50 {
+				t.Fatalf("paired top50: %+v", h)
+			}
+		}
+	}
+	if !found {
+		t.Fatal("paired hostel missing")
 	}
 	w = request("", GetPlayerLeaderboard, "")
 	expect(w, 200)
